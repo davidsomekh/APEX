@@ -1,0 +1,499 @@
+<apex:page controller="CTRL_TotalSeatsReport" standardStylesheets="false" sidebar="false">
+    <apex:includeScript value="{!URLFOR($Resource.jquery)}"/>
+    <apex:includeScript value="{!URLFOR($Resource.floatThead)}"/>
+<!--    <script src="https://mkoryak.github.io/floatThead/dist/jquery.floatThead.js" ></script> -->
+    <style>
+      table.reportResults { 
+          width: 100%;
+      }
+      table.reportResults thead tr  {  background-color: #f2f3f3;  }
+      table.reportResults thead tr th {   padding:4px; border-style: solid;border-color: rgb(191, 196, 212);border-width: 1px 0 1px 1px;}
+      table.reportResults tbody tr  { background-color: #d5ddf3;  }
+      table.reportResults tbody tr td {  padding:5px; border-style: solid;border-color: rgb(191, 196, 212);border-width: 1px 0 0 0;}
+      table.reportResults tr.grand-total  { background-color: #818290;color: white;font-weight: bold;}
+      table.reportResults tr.grand-total td{color: white;padding:8px;}
+      table.reportResults td.dataCell {white-space: nowrap;}
+      table.reportResults th {font-size:10.8000001907349px}
+      th.col-sendEmail, td.col-sendEmail { display: none; }
+      table.show-send th.col-sendEmail, table.show-send td.col-sendEmail { display: table-cell;}
+      .fixed{
+          top:0;
+          position:fixed;
+          width:auto;
+          display:none;
+          border:none;
+        }
+        .buttons{
+            display: table;
+            margin-bottom: 10px;
+        }
+        .btn-addText{display:none;}
+        .btn-sendEmails{display:none;}
+        .btn-cancel{display:none;}
+        .Panel-textArea{display:none;}
+        .message.noMailAutomation{display:none;}
+        .message.chooseReseller{display:none;}
+        .section-mailAddress{display:none;}
+    </style>
+    
+    <script>
+    $(document).ready(function(){
+       //$("table.reportResults").fixMe();
+        $('#my_table').floatThead();
+        $('#my_table').floatThead('reflow');
+        main();
+    });
+    
+    var main = function(){
+    
+        $('.btn-sendToResellers').click(function(){
+           sendOneEmail();
+        });
+        
+         $('.btn-filter').click(function(){
+           sendResellerData();
+        });
+        
+        $('.btn-cancel').click(function(){
+            $('.message.chooseReseller').hide();
+            $('.message.noMailAutomation').hide();
+            $('.section-mailAddress').hide();
+            $('table.reportResults').removeClass('show-send');
+            $('.btn-cancel').hide();
+            $('.btn-addText').hide();
+            $('.btn-sendEmails').hide();
+            $('.btn-sendToResellers').show();
+            $('table.reportResults').show();
+            $('.Panel-textArea').hide();
+            $('.checkAll:checked').prop('checked', false);
+            $('.sendEmail:checked').prop('checked', false);
+            $('#my_table').floatThead('reflow');
+        });
+        
+        $('.checkAll').click(function(){
+            $('.sendEmail').not(this).prop('checked', this.checked);
+            $('.checkAll').not(this).prop('checked', this.checked);
+        });
+        
+        $('.sendEmail').click(function(){
+            $('.checkAll:checked').prop('checked', false);
+        });
+        
+        $('.btn-addText').click(function(){
+            $('.message.chooseReseller').hide();
+            $('.message.noMailAutomation').hide();
+            if($('.sendEmail:checked').size() == 0){
+                $('.message.chooseReseller').show();
+                return;
+            }
+            
+            
+            if($('.sendEmail:checked').size() == 1){
+                var to = $('.sendEmail:checked').next().attr('data-to').slice(1,-1);
+                var cc = $('.sendEmail:checked').next().attr('data-cc').slice(1,-1);
+                var bcc = $('.sendEmail:checked').next().attr('data-bcc').slice(1,-1);
+                if(!to && !cc && !bcc){
+                    $('.message.noMailAutomation').show();
+                    return;
+                }
+                $('.mailAddress[id*=to]').val(to);
+                $('.mailAddress[id*=cc]').val(cc);
+                $('.mailAddress[id*=bcc]').val(bcc);
+                $('.section-mailAddress').show();
+            }
+            
+            $('table.reportResults').hide();
+            $('.Panel-textArea').show();
+            $('.btn-addText').hide();
+            $('.btn-sendEmails').show();
+        });
+        
+        $('.btn-sendEmails').click(function(){
+            if($('.sendEmail:checked').size() == 1){
+                sendOneEmail();
+            }
+            else{
+                sendEmails();
+            }
+            $('table.reportResults').removeClass('show-send');
+            $('.btn-cancel').hide();
+            $('.btn-sendEmails').hide();
+            $('.btn-sendToResellers').show();
+            $('table.reportResults').show();
+            $('.Panel-textArea').hide();
+            $('.checkAll:checked').prop('checked', false);
+            $('.sendEmail:checked').prop('checked', false);
+            $('#my_table').floatThead('reflow');
+        });
+    }
+    
+    </script>
+    <apex:form >
+        <apex:actionFunction name="sendEmails" action="{!sendEmails}" rerender="apexmsg" status="status"/>
+        <apex:actionFunction name="sendOneEmail" action="{!sendOneEmail}" rerender="apexmsg" status="status"/>
+        <apex:actionFunction name="sendResellerData" action="{!sendResellerData}" rerender="apexmsg" status="status"/>
+        <apex:pageMessages id="apexmsg"></apex:pageMessages>
+        
+        <div class="message errorM3 noMailAutomation" role="alert">
+            <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+                <tbody>
+                    <tr valign="top">
+                        <td><img alt="ERROR" class="msgIcon" src="/s.gif" title="ERROR"/></td>
+                        <td class="messageCell">
+                            <div id="showmsg" class="messageText">
+                                <span id="showmsg" style="color:#cc0000">
+                                    <h4>Error:</h4>
+                                </span>No mail automation rule defined for Reseller<br/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr><td></td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="message errorM3 chooseReseller" role="alert">
+            <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+                <tbody>
+                    <tr valign="top">
+                        <td><img alt="ERROR" class="msgIcon" src="/s.gif" title="ERROR"/></td>
+                        <td class="messageCell">
+                            <div id="showmsg" class="messageText">
+                                <span id="showmsg" style="color:#cc0000">
+                                    <h4>Error:</h4>
+                                </span>You need a choose reseller to send email. <br/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr><td></td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <apex:actionstatus id="status">
+            <apex:facet name="start">
+                <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb;
+                       height: 100%;opacity:0.65;width:100%;"> 
+                    <div class="waitingHolder" style="top: 74.2px; width: 91px;">
+                        <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                        <span class="waitingDescription">Please Wait...</span>
+                    </div>
+                </div>
+            </apex:facet>
+        </apex:actionstatus>
+        
+        <div class="wrap">
+        
+            <div class="buttons">
+                <input class="btn-sendToResellers" type="button" value="Send to management" />
+               
+                <br/>
+                <br/>
+                 <input class="btn-filter" type="button" value="Send data of reseller: " />&nbsp;&nbsp;
+                  <apex:selectList value="{!SelectedReseller}" multiselect="false" size="1">
+                 <apex:selectOptions value="{!options}"/>
+
+            
+            </apex:selectList>
+            </div>
+            
+            <table id="my_table" cellspacing="0" cellpadding="0" class="reportResults table table-bordered">
+                   <thead id="floatHead">
+                       <tr> 
+                           <th class="col-sendEmail">
+                                <apex:inputCheckbox styleClass="checkAll" value="{!total.sendEmail}"/>
+                                <apex:outputText value="Send Email"/>
+                           </th> 
+                           <th>Reseller</th>
+                           <th><apex:outputText value="Seats"/></th>
+                           <th><apex:outputText value="SolidWorks"/></th>
+                           <th><apex:outputText value="Inventor"/></th>
+                           <th><apex:outputText value="Xpress"/></th>
+                           <th><apex:outputText value="AFRM"/></th>
+                           <th><apex:outputText value="HSM"/></th>
+                           <th><apex:outputText value="5X"/></th>
+                           <th><apex:outputText value="HSS"/></th>
+                           <th><apex:outputText value="Turning"/></th>
+                           <th><apex:outputText value="Probe"/></th>
+                           <th><apex:outputText value="iMachining 2D"/></th>
+                           <th><apex:outputText value="iMachining 2D %"/></th>
+                           <th><apex:outputText value="iMachining 3D"/></th>
+                           <th><apex:outputText value="iMachining 3D %"/></th>
+                           <th><apex:outputText value="Subscription"/></th>
+                           <th><apex:outputText value="Subscription %"/></th>
+                       </tr>
+                       
+                   </thead>
+                    
+                   <tbody>
+                        <tr class="grand-total">
+                            <td class="col-sendEmail"></td>
+                            <td>Grand Total ({!total.nbRecords} Record{!IF(total.nbRecords > 1,'s','')})</td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbOfSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSolidWorksSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbInventorSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatXpress}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatAFRM}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbHSMSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSim5xSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbHSSSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatTurning}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatProbe}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbIMachining2DSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, 00.00}">
+                                    <apex:param value="{!total.IMachining2DPerc}" />
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbIMachining3DSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, 00.00}">
+                                    <apex:param value="{!total.IMachining3DPerc}" />
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatsOnSubscription}" />
+                                </apex:outputText>
+                            </td>
+                        <td>
+                            <apex:outputText value="{0, number, 00.00}">
+                                <apex:param value="{!total.SubscriptionPerc}" />
+                            </apex:outputText>
+                        </td>
+                        </tr>
+                        <apex:repeat value="{!resellers}" var="row">
+                            <tr class="dataRow">
+                                <td class="col-sendEmail">
+                                    <apex:inputCheckbox styleClass="sendEmail" value="{!row.sendEmail}"/>
+                                    <div data-to="{!accountToAutomationMailsMap[row.reseller.Id].to}" data-cc="{!accountToAutomationMailsMap[row.reseller.Id].cc}" data-bcc="{!accountToAutomationMailsMap[row.reseller.Id].bcc}"/>
+                                </td>
+                                <td class="dataCell">Reseller:&nbsp;<apex:outputlink value="{!row.reseller.Id}"><strong>{!row.reseller.Name}</strong></apex:outputlink> ({!row.nbRecords} Record{!IF(row.nbRecords > 1,'s','')})</td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbOfSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbSolidWorksSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbInventorSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbSeatXpress}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbSeatAFRM}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbHSMSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbSim5xSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbHSSSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbSeatTurning}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbSeatProbe}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbIMachining2DSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, 00.00}">
+                                        <apex:param value="{!row.IMachining2DPerc}" />
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbIMachining3DSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, 00.00}">
+                                        <apex:param value="{!row.IMachining3DPerc}" />
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.nbSeatsOnSubscription}" />
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, 00.00}">
+                                        <apex:param value="{!row.SubscriptionPerc}" />
+                                    </apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                        <tr class="grand-total">
+                            <td class="col-sendEmail"></td>
+                            <td>Grand Total ({!total.nbRecords} Record{!IF(total.nbRecords > 1,'s','')})</td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbOfSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSolidWorksSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbInventorSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatXpress}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatAFRM}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbHSMSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSim5xSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbHSSSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatTurning}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatProbe}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbIMachining2DSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, 00.00}">
+                                    <apex:param value="{!total.IMachining2DPerc}" />
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbIMachining3DSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, 00.00}">
+                                    <apex:param value="{!total.IMachining3DPerc}" />
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbSeatsOnSubscription}" />
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, 00.00}">
+                                    <apex:param value="{!total.SubscriptionPerc}" />
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                   </tbody>
+                 </table>
+            <apex:outputPanel styleClass="Panel-textArea">
+                <div class="section-mailAddress">
+                    To: &nbsp;<apex:inputText styleClass="mailAddress" id="to" value="{!to}" size="50"/><br/><br/>
+                    Cc: &nbsp;<apex:inputText styleClass="mailAddress" id="cc" value="{!cc}" size="50"/><br/><br/>
+                    Bcc: &nbsp;<apex:inputText styleClass="mailAddress" id="bcc" value="{!bcc}" size="50"/>
+                </div>
+                <p>Please enter text:</p>
+                <apex:inputTextarea value="{!mailText}" rows="10" cols="100" richText="true"/>
+            </apex:outputPanel>
+        </div>
+    </apex:form>
+</apex:page>

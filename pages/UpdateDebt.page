@@ -1,0 +1,257 @@
+<apex:page standardController="Opportunity">
+<html>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"></link>
+<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css"></link>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densityDpi=device-dpi" />
+
+
+<style>
+.field_title{
+font-weight:bold;
+margin-right:8px;
+}
+
+.edit_box{
+}
+
+.row_show{
+display:flex;
+flex-direction:row;
+margin-bottom:6px;
+}
+
+.header{
+font-weight:bold;
+margin-right:8px;
+}
+
+.value{
+}
+
+.row{
+display:none;
+flex-direction:row;
+margin-bottom:6px;
+}
+
+.form{
+display:flex;
+flex-direction:column;
+font-family:calibri;
+font-size:16px;
+}
+
+.submit_btn{
+border:1px solid black;
+padding:4px;
+cursor:pointer;
+}
+
+.error{
+color:red;
+}
+
+.submit_btn:hover {
+background-color: orange;
+font-weight: bold;
+}
+
+@keyframes blink {
+
+    0% {
+      opacity: .2;
+    }
+
+    20% {
+      opacity: 1;
+    }
+ 
+    100% {
+      opacity: .2;
+    }
+}
+
+.saving span {
+  
+    animation-name: blink;
+	font-size:24px;
+    animation-duration: 1.4s;
+  
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+}
+
+.saving span:nth-child(2) {
+       animation-delay: .2s;
+}
+
+.saving span:nth-child(3) {
+     animation-delay: .4s;
+}
+
+
+</style>
+
+<div class="form">
+	<div class="row_show">
+		<div class="header">Customer name:</div>
+		<div class="value">{!Opportunity.Account.Name}</div>
+	</div>
+	<div class="row_show">
+		<div class="header">Opportunity:</div>
+		<div class="value">{!Opportunity.Name}</div>
+	</div>
+	<div class="row_show">
+		<div class="field_title">Debt:</div>
+		<div class="edit_box"><input value="{!FLOOR(Opportunity.Debt__c)}" class="debt_number" autofocus="true" type="number"></input></div>
+	</div>
+	<div class="row">
+		<div class="field_title">Finder fee company:</div>
+		<div class="edit_box"><input type="text"></input></div>
+	</div>
+	<div class="row">
+		<div class="field_title">Finder fee amount:</div>
+		<div class="edit_box"><input type="text"></input></div>
+	</div>
+	<div class="row">
+		<div class="field_title">Finder fee paid:</div>
+		<div class="edit_box"><input type="text"></input></div>
+	</div>
+	<div class="row">
+		<div class="field_title">Finder fee paid date:</div>
+		<div class="edit_box"><input type="text"></input></div>
+	</div>
+	<div class="row">
+		<div class="field_title">Finder fee person:</div>
+		<div class="edit_box"><input type="text"></input></div>
+	</div>
+	<div class="row">
+		<div class="field_title">Threshold sale:</div>
+		<div class="edit_box"><input type="text"></input></div>
+	</div>
+	<div class="row">
+		<div class="field_title">Commision paid:</div>
+		<div class="edit_box"><input type="text"></input></div>
+	</div>
+	<div class="row">
+		<div class="field_title">Commision paid date:</div>
+		<div class="edit_box"><input type="text"></input></div>
+	</div>
+	<div class="row_show">
+		<div class="submit_btn">Save</div>
+	</div>
+	<div class="row_show">
+		<div class="progress"></div>
+	</div>
+	<div class="row_show">
+		<div class="error"></div>
+	</div>
+</div>
+<script>
+
+var sRecordID = '';
+var $_GET = {};
+
+$(".debt_number").focus().val("").val({!FLOOR(Opportunity.Debt__c)});
+
+		
+if(document.location.toString().indexOf('?') !== -1) {
+	var query = document.location
+				   .toString()
+				   // get the query string
+				   .replace(/^.*?\?/, '')
+				   // and remove any existing hash string (thanks, @vrijdenker)
+				   .replace(/#.*$/, '')
+				   .split('&');
+
+	for(var i=0, l=query.length; i<l; i++) {
+	   var aux = decodeURIComponent(query[i]).split('=');
+	   $_GET[aux[0]] = aux[1];
+	}
+}
+//get the 'index' query parameter
+
+$('body').find('.debt_number').keydown(function (e) {
+			if (e.keyCode == 13) 
+				OnSave();
+});
+
+if($_GET['id'] != null)
+	sRecordID =  $_GET['id'];
+
+$( ".submit_btn" ).click(function(e) {
+		OnSave();
+		});
+		
+function OnSave()
+{
+$('body').find('.progress').html('<div class="saving"><span>.</span><span>.</span><span>.</span></div>');
+	$( ".submit_btn" ).css('display','none');
+			if(Validate())
+				UpdateSF();
+}
+
+function Validate()
+{
+	if(!$.isNumeric($( ".debt_number" ).val()))
+	{
+		$('.error').text('Invalid debt (Please enter a number)');
+		$('body').find('.progress').html('');
+		$( ".submit_btn" ).css('display','flex');
+		return false;
+	}
+	
+	$('.error').text('');
+	return true;
+}
+		
+function UpdateSF()
+	{
+		
+		name = name.trim();
+		var url = "https://apps.solidcam.com/VF/ajax.php";
+		
+		var dataPost = { "debt": $( ".debt_number" ).val(),"ID": sRecordID};
+		console.log(dataPost);
+		var dataString = JSON.stringify(dataPost);
+		
+			
+		$.ajax({url: url,  type: 'POST', data: {update_sf: dataString}, success: function(result){
+			console.log(result);
+			if(result['success'])
+			{
+				$('.error').css('color','green')	
+				$('.error').html('<i style="margin-right :6px" class="fa fa-send-o""></i>Update successful');
+			
+				var sRecord = 'https://um2.salesforce.com/' + sRecordID;
+        		window.location.replace(sRecord);
+			}
+			else
+			{
+				$('.error').text(result['response']);
+				$( ".submit_btn" ).css('display','flex');
+			}
+				
+			
+			$('body').find('.progress').html('');
+        },
+		error:function(result)
+		{
+			$('.error').text('Server error - contact Administrator');
+			$( ".submit_btn" ).css('display','flex');
+			$('body').find('.progress').html('');
+		},
+			dataType:"json"
+		});
+		
+		
+		
+	}
+</script>
+</html>
+</apex:page>

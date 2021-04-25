@@ -1,0 +1,37 @@
+<apex:page standardController="Dongle__c" extensions="Dongle_Batch">
+
+	<apex:includeScript value="{!$Resource.jquery}"/>
+	
+	<apex:sectionHeader title="Dongle" subtitle="Batch"/>
+	<apex:form >
+		<apex:actionfunction name="checkBatchStatus" action="{!checkBatchStatus}" rerender="status" oncomplete="checkBatchStatus2()"/>
+		
+		<apex:pageBlock title="Generate Dongle" mode="edit">
+				<apex:pageMessages />
+				<apex:pageBlockButtons >
+					<apex:commandButton value="Start Batch" action="{!execBatch}" oncomplete="checkBatchStatus()"/>
+				</apex:pageBlockButtons>
+				<apex:pageBlockSection title="Batch" columns="1" collapsible="true">
+					<apex:outputText value="IDs"/>
+					<apex:inputTextArea value="{!idList}"/>
+					<apex:outputText value="Internal Use - Yearly renewal"/>
+					<apex:inputCheckbox value="{!bInternalUse}"/>
+					<apex:outputText value="Version update"/>
+					<apex:inputCheckbox value="{!bVersion}"/>
+					<apex:outputPanel id="status">
+					<apex:outputPanel rendered="{!aaj.id != null}">
+						{!aaj.Status} ({!aaj.JobItemsProcessed}/{!aaj.TotalJobItems})
+						<script>
+							function checkBatchStatus2(){
+								if( '{!aaj.Status}' != 'Completed')
+									setTimeout( checkBatchStatus() ,3000 );
+							}
+						</script>
+					</apex:outputPanel>
+				</apex:outputPanel>
+				</apex:pageBlockSection>
+		</apex:pageBlock>
+		
+	</apex:form>
+	
+</apex:page>

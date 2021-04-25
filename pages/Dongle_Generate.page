@@ -1,0 +1,37 @@
+<apex:page standardController="Dongle__c" extensions="Dongle_Generate" action="{!GenerateDongle}">
+    
+    <apex:includeScript value="{!$Resource.jquery}"/>
+    
+    <apex:sectionHeader title="Dongle" subtitle="{!dongle.Name}"/>
+    <apex:form >
+        <apex:pageBlock title="License update..." mode="edit">
+            <apex:pageMessages />
+                       
+            <apex:outputPanel rendered="{!Attachment.id !=null }">
+                <apex:pageMessage severity="info"  strength="3"
+                    title="Generated Dongle"
+                    >
+                     
+                    <apex:outputLink styleClass="LinkAtt" value="{!URLFOR($Action.Attachment.Download, attachment.id)}" target="_blank">{!attachment.name}</apex:outputLink>
+                </apex:pageMessage>
+            </apex:outputPanel>
+            
+<!--            <apex:pageBlockSection title="DATA" columns="1" collapsible="true"> -->
+<!--                <apex:pageBlockSectionItem >  -->
+<!--                    <apex:outputText value="Data"/> -->
+<!--                    <apex:outputText value="{!DATA}" escape="false"/> -->
+<!--                </apex:pageBlockSectionItem> -->
+<!--            </apex:pageBlockSection> -->
+        </apex:pageBlock>
+    </apex:form>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var href = $('.LinkAtt').attr('href');
+        if(href)
+            window.location.href = href;
+    });
+
+</script>
+
+</apex:page>

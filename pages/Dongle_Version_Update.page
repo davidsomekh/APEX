@@ -1,0 +1,72 @@
+<apex:page standardController="Dongle__c" extensions="Dongle_Generate" action="{!updateDongle}">
+    
+    <apex:includeScript value="{!$Resource.jquery}"/>
+    
+    <apex:sectionHeader title="Dongle" subtitle="{!dongle.Name}"/>
+    <apex:form id="form">
+        <apex:actionFunction name="GenerateLicense" action="{!GenerateLicense}" rerender="form" oncomplete="downloadFile()"/>
+        <apex:pageBlock title="Version {!dongle.Version_Translate__c} license update" mode="edit">
+            <apex:pageMessages />
+            
+            
+            
+            
+            <apex:outputPanel rendered="{!Attachment.id !=null }">
+                <apex:pageMessage severity="info"  strength="3"
+                    title="License successfully updated to version {!dongle.Version_Translate__c}"
+                    >
+                     
+                    <apex:outputLink styleClass="LinkAtt" value="{!URLFOR($Action.Attachment.Download, attachment.id)}" target="_blank">{!attachment.name}</apex:outputLink>
+                </apex:pageMessage>
+            </apex:outputPanel>
+            <apex:outputPanel id="bar" rendered="{!m_pk_progress == true}">
+    <apex:pageMessage severity="info"  strength="3"
+                    title="Processing product key update, this will take a few seconds..." 
+                    ></apex:pageMessage>
+    </apex:outputPanel>
+    <apex:outputPanel id="download_existing" rendered="{!m_attachment_download == true}">
+    <apex:pageMessage severity="info"  strength="3" title="Product key generated successfully ({!dongle.Version_Translate__c})" >
+    <apex:outputLink styleClass="LinkAtt" value="{!URLFOR($Action.Attachment.Download, m_pk_attachment.id)}" target="_blank">{!m_pk_attachment.name}</apex:outputLink>
+    </apex:pageMessage>
+    </apex:outputPanel>
+            <apex:outputPanel id="status"  styleClass="red">
+                <apex:outputPanel rendered="{!m_PK_name != ''}">
+                <apex:pageBlock mode="edit">
+                     
+              
+                    <apex:pageMessage severity="info"  strength="3"
+                    title="Product key generated successfully ({!dongle.Version_Translate__c})"  
+                    >
+                    
+                    
+                     
+                    <apex:outputLink styleClass="LinkAtt" value="https://forms.solidcam.com/ldk/download.php?pk={!m_PK_name}">{!m_PK_name}</apex:outputLink>
+                </apex:pageMessage>
+              </apex:pageBlock>
+                </apex:outputPanel>
+            </apex:outputPanel>
+            
+<!--            <apex:pageBlockSection title="DATA" columns="1" collapsible="true"> -->
+<!--                <apex:pageBlockSectionItem >  -->
+<!--                    <apex:outputText value="Data"/> -->
+<!--                    <apex:outputText value="{!DATA}" escape="false"/> -->
+<!--                </apex:pageBlockSectionItem> -->
+<!--            </apex:pageBlockSection> -->
+        </apex:pageBlock>
+    </apex:form>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        if({!updatedDongle})
+            GenerateLicense();
+    });
+    
+    var downloadFile = function(){
+        var href = $('.LinkAtt').attr('href');
+        if(href)
+            window.location.href = href;
+    }
+
+</script>
+
+</apex:page>

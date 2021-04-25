@@ -1,0 +1,25 @@
+<apex:page standardController="Dongle__c" extensions="PK_Batch">
+
+<apex:form >
+	<apex:actionfunction name="UpdateStatus" action="{!checkBatchStatus}" rerender="status" oncomplete="checkBatchStatus2()"/>
+	<apex:pageBlock title="Sync product keys" mode="edit">
+	<apex:pageBlockButtons >
+						<apex:commandButton value="Start Batch" action="{!execBatch}" oncomplete="UpdateStatus()"/>
+	</apex:pageBlockButtons>
+	<apex:pageBlockSection title="Batch" columns="1" collapsible="true">
+				<apex:outputPanel id="status" >
+					<apex:outputPanel rendered="{!aaj.id != null}">
+						{!aaj.Status} ({!aaj.JobItemsProcessed}/{!aaj.TotalJobItems})
+						<script>
+							function checkBatchStatus2(){
+								if( '{!aaj.Status}' != 'Completed')
+									setTimeout( checkBatchStatus() ,3000 );
+							}
+						</script>
+					</apex:outputPanel>	
+				</apex:outputPanel>
+	</apex:pageBlockSection>
+	</apex:pageBlock>
+</apex:form>
+
+</apex:page>

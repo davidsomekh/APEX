@@ -1,0 +1,3 @@
+<apex:page standardController="Opportunity" extensions="GenerateQuote" renderAs="pdf" showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" applyHtmlTag="false">
+	<c:QuotePDFAttachment oppId="{!Opportunity.Id}"/>
+</apex:page>

@@ -1,0 +1,45 @@
+<apex:page standardController="Opportunity" extensions="Stock_dongles">
+    
+    <apex:includeScript value="{!$Resource.jquery}"/>
+    <apex:form id="form">
+
+    <apex:outputPanel rendered="{!m_finished == false}">
+    <br> <img src="http://sentinel.solidcam.com/images/animatedEllipse.gif" />  </br>
+    </apex:outputPanel>
+    <apex:actionFunction name="Import" action="{!InitPage}" rerender="form" OnComplete="finalRedirect()"/>
+    <apex:outputPanel rendered="{!m_finished == true}">
+
+    <apex:pageMessages />
+
+    </apex:outputPanel>
+
+
+          
+                       
+    <apex:outputPanel id="status"  styleClass="red">
+        <apex:outputPanel rendered="{!m_stock_OK == true}">
+        <apex:pageBlock mode="edit">
+             
+      
+            <apex:pageMessage severity="info"  strength="3"
+            title="Stock completed successfully" 
+            >
+            
+            
+             
+      
+        </apex:pageMessage>
+      </apex:pageBlock>
+        </apex:outputPanel>
+    </apex:outputPanel>
+         
+    </apex:form>
+
+<script type="text/javascript">
+
+
+   
+Import();
+
+</script>
+</apex:page>

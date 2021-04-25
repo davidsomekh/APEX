@@ -1,0 +1,260 @@
+<apex:page sidebar="false" showHeader="false" standardController="Opportunity">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"></link>
+<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css"></link>
+
+<style>
+body{
+padding:6px;
+font-size:13px;
+}
+.header{
+	display:table-cell;
+	border:1px solid black;
+	border-right: 0px;
+	padding:4px;
+	font-weight: bold;
+	 
+}
+.value{
+display:table-cell;
+border:1px solid black;
+padding:4px;
+ white-space:pre-wrap;
+
+}
+
+.new_row{
+
+display:table-row;
+}
+
+.order_table{
+margin-top:6px;
+display:table;
+}
+
+.product_table{
+margin-top:6px;
+display:table;
+}
+.exp{
+padding:6px;
+}
+</style>
+
+<apex:repeat value="{!Opportunity.OpportunityLineItems}" var="lineitem">
+
+<apex:outputPanel rendered="{!IF(contains(lineitem.product2.name,'Suit'),true,false)}">
+   <div class="emb_alert"> <i class="material-icons">announcement</i> Embedded order</div>
+  </apex:outputPanel>
+  
+  <apex:outputPanel rendered="{!IF(contains(lineitem.product2.name,'Embedded'),true,false)}">
+   <div class="emb_alert"> <i class="material-icons">announcement</i> Embedded order</div>
+  </apex:outputPanel>
+
+
+
+  
+
+</apex:repeat>
+
+
+
+<div class="order_table">
+<div class="header">Order number</div><div class="value">{!Opportunity.Name}</div>
+<div class="header">Date</div><div class="value"><apex:outputText value="{0, date, MMMM d','  yyyy}">
+    <apex:param value="{!Opportunity.CloseDate}" /> 
+</apex:outputText></div>
+<div class="header">Reseller</div><div class="value">{!Opportunity.Reseller__r.Name}</div>
+<div class="header">Sales person</div><div class="value">{!Opportunity.Sales_Person__r.Name}</div>
+<div class="header">Customer</div><div class="value">{!Opportunity.Account.Name}</div>
+<div class="header">Price</div><div class="value">{!Opportunity.Expected_price__c} {!Opportunity.CurrencyIsoCode}</div>
+<div class="header">Transfer price</div><div class="value">{!Opportunity.Transfer_price__c}</div>
+<div class="header">License</div><div class="value">{!Opportunity.Dongle_Details__c}</div>
+<div class="header">License type</div><div class="value">{!Opportunity.Licens_type__c}</div>
+<div class="header">License Expiration date</div><div class="value"><apex:outputText value="{0, date, MMMM d','  yyyy}">
+    <apex:param value="{!Opportunity.License_expiration_date__c}" /> 
+</apex:outputText></div>
+<div class="header">Subscription start date</div><div class="value"><apex:outputText value="{0, date, MMMM d','  yyyy}">
+    <apex:param value="{!Opportunity.Subscription_start_date__c}" /> 
+</apex:outputText></div>
+<div class="header">Subscription end date</div><div class="value"><apex:outputText value="{0, date, MMMM d','  yyyy}">
+    <apex:param value="{!Opportunity.Subscription_end_date__c}" /> 
+</apex:outputText></div>
+<div class="header">Subscription type</div><div class="value">{!Opportunity.Subscription_type__c}</div>
+<div class="header">Subscription remarks</div><div class="value">{!Opportunity.Subscription_remarks__c}</div>
+<div class="header">Items Ordered</div><div class="value">{!Opportunity.Items_ordered__c}</div>
+<div class="header">Comments</div><div class="value">{!Opportunity.Description}</div>
+<div class="header">Remarks</div><div class="value">{!Opportunity.Remarks__c}</div>
+</div>
+<table border="1" class="product_table">
+<apex:repeat value="{!Opportunity.OpportunityLineItems}" var="lineitem">
+
+
+         <tr><td class="value">{!lineitem.product2.name}</td><td class="value">{!lineitem.quantity}</td></tr>
+
+</apex:repeat>
+
+  </table>      
+
+
+<script>
+
+var lines_delete = [];
+
+function isOdd(num) {
+ return num % 2;
+ }
+ 
+ function IsLineEmpty(index)
+ {
+	for (i = 0; i < lines_delete.length; i++) 
+	{
+		if(lines_delete[i] == index)
+			return true;
+	}
+	
+	return false;
+}
+
+var sRecordID = '';
+var $_GET = {};
+
+		
+if(document.location.toString().indexOf('?') !== -1) {
+	var query = document.location
+				   .toString()
+				   // get the query string
+				   .replace(/^.*?\?/, '')
+				   // and remove any existing hash string (thanks, @vrijdenker)
+				   .replace(/#.*$/, '')
+				   .split('&');
+
+	for(var i=0, l=query.length; i<l; i++) {
+	   var aux = decodeURIComponent(query[i]).split('=');
+	   $_GET[aux[0]] = aux[1];
+	}
+}
+//get the 'index' query parameter
+
+if($_GET['id'] != null)
+	sRecordID =  $_GET['id'];
+	
+
+$('#exp').hide();
+$('#exp_header').hide();
+
+ $( ".emb_alert" ).each(function( index ) {
+ 
+ if(index > 0)
+ 	$(this).remove();
+	
+
+});
+			
+			
+var IV = {!Opportunity.InventorCAM__c};
+var exp_string = "{!Opportunity.License_expiration_date__c}";
+var exp_date = new  Date("{!Opportunity.License_expiration_date__c}");
+
+var sCountry = "{!Opportunity.Reseller_country__c}";
+
+
+
+var dd = exp_date.getDate();
+var mm = exp_date.getMonth()+1; //January is 0!
+
+var yyyy = exp_date.getFullYear();
+if(dd<10){
+    dd='0'+dd;
+} 
+if(mm<10){
+    mm='0'+mm;
+} 
+var new_date = dd+'/'+mm+'/'+yyyy;
+
+
+console.log(new_date);
+
+if(exp_string != '')
+	$('body').prepend('<i class="material-icons">announcement</i> Timed license - ' + new_date);
+if(IV)
+	$('body').prepend('<div class="iv_alert"><i class="material-icons">announcement</i> InventorCAM order</div>');
+	
+	
+if({!Opportunity.Products_count__c} < 1 || sCountry == 'United States')
+	$('.product_table').remove();
+
+	
+var count = 1;
+ var line = 0;
+ var lines = [];
+ 
+ $( ".value" ).each(function( index ) {
+ 
+ if($(this).text() == '')
+ {
+	lines_delete.push(index);
+	$(this).remove();
+}
+	
+
+});
+
+
+$( ".header" ).each(function( index ) {
+	if(IsLineEmpty(index))
+		$(this).remove();
+ });
+ 
+ $( ".header" ).each(function( index ) {
+ count++;
+ $( this ).attr('id',index+1);
+});
+
+$( ".value" ).each(function( index ) {
+   $( this ).attr('id',index + count);
+});
+
+count--;
+
+var sLine = '';
+var iCont = 0;
+while(iCont < count)
+{
+	iCont++;
+	if(isOdd(iCont))
+	{
+	    sLine = '#' + iCont + ',' + '#' + (iCont + count);
+		console.log(sLine);
+	}
+	else
+	{
+		var sInnerLine = ',#' + iCont + ',' + '#' + (iCont + count);
+		sLine = sLine + sInnerLine;
+		console.log(sInnerLine);
+		lines.push(sLine);
+		sLine = '';
+	}
+}
+
+for (i = 0; i < lines.length; i++) 
+    $(lines[i]).wrapAll('<div class="new_row">');
+
+window.print();
+
+
+
+
+window.onafterprint = function(e){
+		var sRecord = 'https://eu1.salesforce.com/' + sRecordID;
+        window.location.replace(sRecord);
+
+    };
+
+</script>
+</apex:page>

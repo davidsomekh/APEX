@@ -1,0 +1,447 @@
+<apex:page sidebar="true" showHeader="true" standardController="Opportunity" extensions="InvoiceData">
+<apex:form >
+<apex:actionFunction name="SendEmail" action="{!GetData}" rerender="out" status="myStatus"/>
+</apex:form>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"></link>
+<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css"></link>
+
+
+<style>
+.error{
+	font-family:Calibri;
+	font-size:20px;
+}
+</style>
+
+<html>
+<div class="error">Generating invoice...</div>
+</html>
+
+<script>
+
+$('.error').text('Generating invoice... (' + GetAccountName() + ')');
+
+var sRecordID = '';
+var $_GET = {};
+var m_opp_pro = new Array();
+var m_opp_has_pro = false;
+
+
+//var iVat = parseInt("{!Opportunity.Account.Hashavshevet_VAT_number__c}");
+
+if(document.location.toString().indexOf('?') !== -1) {
+	var query = document.location
+				   .toString()
+				   // get the query string
+				   .replace(/^.*?\?/, '')
+				   // and remove any existing hash string (thanks, @vrijdenker)
+				   .replace(/#.*$/, '')
+				   .split('&');
+
+	for(var i=0, l=query.length; i<l; i++) {
+	   var aux = decodeURIComponent(query[i]).split('=');
+	   $_GET[aux[0]] = aux[1];
+	}
+}
+
+
+if($_GET['id'] != null)
+	sRecordID =  $_GET['id'];
+	
+m_opp_pro  = GetProducts();
+
+
+if(Validation())
+	StartPHP();
+
+function GetProducts()
+{
+	var ProductsArr  = new Array();
+	var arrayLength = {!m_quan}.length;
+	
+	if(GetAccountCountry() != 'United States22')
+	{
+	
+		for (var index = 0; index < arrayLength;index++) 
+		{
+			m_opp_has_pro = true;
+	    	var product_row  = {name:{!JSON_NAMES}[index], quantity:{!m_quan}[index], ID:{!m_ids}[index],price: {!m_price}[index]};
+			ProductsArr.push(product_row);
+		}
+	
+	}
+	
+	//GetData();
+	
+	/*if(ProductsArr.length == 0 || GetAccountCountry() == 'United States')
+	{
+		var product_row  = {name:"{!JSENCODE(Opportunity.Items_ordered__c)}", quantity:1, ID:GetItemsCode(),price: "{!Opportunity.price_string__c}"};
+		ProductsArr.push(product_row);
+	}*/
+	
+	return ProductsArr;
+}
+
+function GetItemsCode()
+{
+	var sCode = "{!Opportunity.Hasavshevet_product_Code__c}";
+	return sCode.substring(0,3);
+}
+	
+function Validation()
+{
+	if(("{!Opportunity.Requested_Amount__c}" == "" && "{!Opportunity.Requested_Discount__c}" != "") || ("{!Opportunity.Requested_Discount__c}" == "" && "{!Opportunity.Requested_Amount__c}" != ""))
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i> Please check discount fields');
+		return false;
+	}
+	
+	if(MissingProductCode())
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i> Please insert product code (Below items ordered)');
+		return false;
+	}
+	if((GetAccountCountry() == 'United States' || GetAccountCountry() == 'India') && ("{!Opportunity.Transfer_price__c}" == 0 || "{!Opportunity.Transfer_price__c}"== null))
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i> Transfer price is empty');
+		return false;
+	}
+	
+	if(GetAccountCountry() == 'India' && "{!Opportunity.Account.Customer_GST__c}" == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i> INDIA -  Please insert customer GST');
+		return false;
+	}
+	
+	if("{!Opportunity.price_string__c}" == "0")
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i> Final price is empty');
+		return false;
+	}
+	
+	/*if(!Rounded())
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i> Amount  is not rounded');
+		return false;
+	}*/
+	
+	
+	
+	
+	/*if(GetWizID() == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i> Hasavshevet account ID missing');
+		return false;
+	}*/
+	
+	if("{!Opportunity.Account.Hashavshevet_VAT_number__c}" == '' && "{!Opportunity.Account.ShippingCountry}" == 'Israel')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>Missing VAT number (Israeli account)');
+		return false;
+	}
+	
+	if(GetAccountName() == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>Who to invoice? Please check account settings.');
+		return false;
+	}
+	
+	if(GetAccountSegment() == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>Account segement is missing');
+		return false;
+	}
+	
+	if(!m_opp_has_pro && "{!JSENCODE(Opportunity.Items_ordered__c)}" == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>No products or items ordered');
+		return false;
+	}
+	
+	if(GetCurrency() == 'problem')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>Currency error');
+		return false;
+	}
+	
+	if(GetAccountCity() == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>Missing acccount city');
+		return false;
+	}
+	
+	/*if(GetAccountZip() == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>Missing acccount zip');
+		return false;
+	}*/
+	
+	if(GetAccountCountry() == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>Missing acccount country');
+		return false;
+	}
+	
+	if(GetAccountStreet() == '')
+	{
+		$('.error').css('color','red');
+		$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>Missing acccount street');
+		return false;
+		
+	}
+	
+	return true;
+}
+
+function MissingProductCode()
+{
+	if(parseInt("{!Opportunity.Number_of_products__c}") > 0)
+		return false;
+		
+	return "{!Opportunity.Hasavshevet_product_Code__c}" == '';
+	
+}
+
+function Rounded()
+{
+	if(parseFloat("{!Opportunity.Requested_Amount__c}") > 0)
+		return true;
+		
+	return parseFloat("{!Opportunity.Amount}") % 1 == 0;
+}
+
+function StartPHP()
+	{
+	SendEmail();
+		var url = "https://apps.solidcam.com/VF/ajax.php";
+		
+		
+		var sCurrency = GetCurrency();
+		var sCloseDate = GetCloseDate();
+		var sAccountDate = GetAccountDate();
+		var bOverseas = GetOverSeas();
+		var iConversion = GetConversionRate();
+		var iSegment = GetAccountSegment();
+		var sAccountName = GetAccountName();
+		var sAddress =  GetAccountStreet();
+		var sZip = GetAccountZip();
+		var sCountry = GetAccountCountry();
+		var sCity = GetAccountCity();
+		var sWizID = GetWizID();
+		var sComment = "{!Opportunity.Name}" + " " + "{!Opportunity.Account.Name}";
+		
+		if("{!Opportunity.Account.Customer_GST__c}" != "")
+			sComment = sComment + " End Customer GST-"+"{!Opportunity.Account.Customer_GST__c}";
+			
+		console.log(sComment);
+	
+			
+		var dataPost = { "sCurrency":sCurrency,"iConversionRate": iConversion
+						,"iFinalPrice": "{!Opportunity.price_string__c}","sProductName": "{!JSENCODE(Opportunity.Items_ordered__c)}"
+						,"iProductID": 324,"sCloseDate": sCloseDate
+						,"id": "{!Opportunity.Id}","sAccountName": sAccountName
+						,"iAccountID": sWizID,"bOverseas": bOverseas
+						,"iVatNumber" : GetVatID(),"iSegement": iSegment
+						,"OppName" : "{!Opportunity.Name}","comment": sComment
+						, "Products" : m_opp_pro, "Discount": "{!Opportunity.Amount_after_discount__c}"
+						, "address": sAddress, "city": sCity
+						, "country": sCountry,"zip": sZip
+						,"AccID": GetAccID(), "AccountDate" : sAccountDate
+						,'items_code': "{!Opportunity.Hasavshevet_product_Code__c}"
+		};
+		
+
+		var dataString = JSON.stringify(dataPost);
+		
+			
+		$.ajax({url: url,  type: 'POST', data: {gen_invoice: dataString}, success: function(result){
+				if(result['success'])
+			{
+				var sRes = 'Successful (' + sAccountName + ')';
+				$('.error').css('color','green');	
+				$('.error').html('<i style="margin-right :6px" class="fa fa-send-o""></i>' + sRes);
+
+			}
+			else
+			{
+				$('.error').css('color','red');
+				$('.error').html('<i style="margin-right :6px" class="fa fa-warning""></i>' + result['response']);
+			}
+
+        },
+		error:function(result)
+		{
+			$('.error').text('Server error - contact Administrator');
+
+		},
+			dataType:"json"
+		});
+		
+		
+		
+	}
+	
+	function GetAccID()
+	{
+		if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+			return "{!Opportunity.Account.Id}";
+			
+		return "{!Opportunity.ResellerID__c}";
+	}
+	
+	function GetVatID()
+	{
+		if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+			return parseInt("{!Opportunity.Account.Hashavshevet_VAT_number__c}");
+			
+		return parseInt("{!Opportunity.ResellerVAT__c}");
+	}
+	
+	function GetAccountCity()
+	{
+		if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+			return "{!Opportunity.Account.ShippingCity}";
+			
+		return "{!Opportunity.ResellerCity__c}";
+	}
+	
+	function GetAccountZip()
+	{
+		if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+			return "{!Opportunity.Account.ShippingPostalCode}";
+			
+		return "{!Opportunity.ResellerZip__c}";
+	}
+	
+	function GetAccountCountry()
+	{
+		if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+			return "{!Opportunity.Account.ShippingCountry}";
+			
+		return "{!Opportunity.ResellerCountry__c}";
+	}
+	
+	function GetAccountStreet()
+	{
+		if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+			return "{!JSENCODE(Opportunity.Account.ShippingStreet)}";
+			
+		return "{!JSENCODE(Opportunity.ResellerStreet__c)}";
+	}
+	
+	function GetAccountName()
+	{
+		if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+			return "{!Opportunity.Account.Name}";
+			
+		return '{!Opportunity.Reseller_invoice_name__c}';
+	}
+	
+function GetAccountSegment()
+{
+    var Segement = '';
+	if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+		Segement = "{!Opportunity.Account.Hashavshevet_Account_segment__c}";
+	else
+		Segement = "{!Opportunity.Reseller_invoice_segment__c}";
+		
+	
+	if(Segement == '')
+		return 0;
+	
+	return Segement.substring(0,3);
+
+}
+
+function GetWizID()
+{
+    var WID = '';
+	if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+		WID = "{!Opportunity.Account.Hashavshevet_Account__c}";
+	else
+		WID = "{!Opportunity.Reseller_Invoice_ID__c}";
+		
+	return WID;
+
+}
+
+function GetOverSeas()
+{
+	return "{!Opportunity.Account.ShippingCountry}" != "Israel";
+}
+function GetCurrency()
+{
+ if("{!Opportunity.CurrencyIsoCode}" == "USD")
+ 	return '$';
+ else if("{!Opportunity.CurrencyIsoCode}" == "ILS")
+ 	return 'ש';
+ else if("{!Opportunity.CurrencyIsoCode}" == "EUR")
+ 	return 'אירו';
+ 	else if("{!Opportunity.CurrencyIsoCode}" == "JPY")
+ 	return 'י';
+ 	
+ return 'problem';
+}
+
+function GetAccountDate()
+{
+	var acc_date = null;
+	if("{!Opportunity.Account.ShippingCountry}" == 'Israel' || {!Opportunity.Invoice_Customer_Directly__c})
+		acc_date = new Date("{!Opportunity.Account.CreatedDate}");
+	else
+		acc_date = new Date("{!Opportunity.Reseller_date__c	}");
+	
+	var sMonth = 0;
+	var month_int = 0;
+	month_int = parseInt(acc_date.getMonth());
+	if(month_int < 9)
+		sMonth = "0" + (month_int + 1);
+	else
+		sMonth = month_int + 1;
+		
+	return acc_date.getFullYear() + "-" + sMonth + "-" + acc_date.getDate();
+	
+}
+	
+function GetCloseDate()
+{
+	var close = new Date("{!Opportunity.CloseDate}");
+	
+	var sMonth = 0;
+	var month_int = 0;
+	month_int = parseInt(close.getMonth());
+	if(month_int < 9)
+		sMonth = "0" + (month_int + 1);
+	else
+		sMonth = month_int + 1;
+		
+	return close.getFullYear() + "-" + sMonth + "-" + close.getDate();
+	
+}
+
+function GetConversionRate(Currency)
+{
+	return 4;
+}
+</script>
+</apex:page>

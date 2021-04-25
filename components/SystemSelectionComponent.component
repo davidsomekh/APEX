@@ -1,0 +1,514 @@
+<apex:component controller="Ctrl_SystemSelectionComponent" 	allowDML="true" id="apexCom">
+<style>
+.errorM4 .msgIcon, .errorSmall {
+    background-image: url(/img/samples/flag_red.gif) !important;
+}
+
+.myCustomMessage .message {
+    background: none  !important;
+    border: none !important;
+}
+
+</style>
+	<apex:attribute name="textValue"
+		description="This is the value for the component" type="String"
+		required="true" />
+	<apex:attribute name="textColor"
+		description="This is color for the border." type="String"
+		required="true" />
+		<head>
+		<script src="https://cdn.jsdelivr.net/accounting.js/0.3.2/accounting.js" />
+		</head>
+	<apex:form id="myform">
+		<apex:pageMessages id="errormesg"/>
+		<apex:outputPanel rendered="{!missing}" >
+			<apex:outputPanel rendered="{!IF(missingListIncluded.size>0,true,false)}" style="display:block;" styleClass="message warningM3">
+				<b>Included Products in Package :</b>
+				<apex:repeat value="{!missingListIncluded}" var="pro">
+					{!pro};&nbsp;
+				</apex:repeat>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!IF(missingListOptional.size>0,true,false)}" style="display:block;" styleClass="message warningM3">
+				<b>Optional Add on Products :</b>
+				<apex:repeat value="{!missingListOptional}" var="pro">
+					{!pro};&nbsp;
+				</apex:repeat>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!IF(missingListOthers.size>0,true,false)}" style="display:block;" styleClass="message warningM3">
+				<b>Other Products :</b>
+				<apex:repeat value="{!missingListOthers}" var="pro">
+					{!pro} ;&nbsp;
+				</apex:repeat>
+			</apex:outputPanel>
+		</apex:outputPanel>
+		
+		<apex:pageBlock title="System Selection" id="PB">
+		
+		<table style="width: 100%">
+				<tr>
+					<td>Pricebook&nbsp;:&nbsp; <apex:selectList value="{!selectedPicebookIds}" size="1"
+							onchange="changesetting()">
+							<apex:selectOptions value="{!PricebookNames}" />
+							<!-- <apex:actionSupport event="onchange" reRender="bundle,allsections,errormesg" status="status" action="{!callBundlesPicklist}"/> -->
+							<apex:actionstatus id="status">
+								<apex:facet name="start">
+									<div class="waitingSearchDiv" id="el_loading"
+										style="background-color: #fbfbfb; height: 100%; opacity: 0.65; width: 100%;">
+										<div class="waitingHolder" style="top: 74.2px; width: 91px;">
+											<img class="waitingImage" src="/img/loading.gif"
+												title="Please Wait..." /> <span class="waitingDescription">Please
+												Wait...</span>
+										</div>
+									</div>
+								</apex:facet>
+							</apex:actionstatus>
+						</apex:selectList>
+					</td>
+					
+					
+					<td>Package&nbsp;:&nbsp; <apex:selectList value="{!selectedBundleId}" size="1" id="bundle"
+							onchange="changesetting1()">
+							<apex:selectOptions value="{!BundleNames}" />
+							<apex:actionSupport id="adOnProductType" event="onchange"
+								action="{!DisplayRelatedOptionalAdOnProducts}" status="status1"
+								rerender="allsections,errormesg" />
+							<apex:actionstatus id="status1">
+								<apex:facet name="start">
+									<div class="waitingSearchDiv" id="el_loading"
+										style="background-color: #fbfbfb; height: 100%; opacity: 0.65; width: 100%;">
+										<div class="waitingHolder" style="top: 74.2px; width: 91px;">
+											<img class="waitingImage" src="/img/loading.gif"
+												title="Please Wait..." /> <span class="waitingDescription">Please
+												Wait...</span>
+										</div>
+									</div>
+								</apex:facet>
+							</apex:actionstatus>
+						</apex:selectList></td>
+					<td>Quantity&nbsp;:&nbsp;<apex:inputText value="{!Bundlequantity}" onchange="testing(this.value);">
+							<apex:actionSupport event="onchange" reRender="allsections" />
+						</apex:inputText></td>
+					<td><apex:CommandButton value="Next" action="{!dispProducts}"
+							rerender="myform,allsections,PBBtn" rendered="{!dispNextBtn}" /></td>
+				</tr><tr >
+				<td colspan="3" style="padding-top:10px"><span style="position:relative;bottom:25px;">Description&nbsp;:&nbsp;</span><apex:inputTextarea style="height:55px" cols="116" value="{!opp.Package_Description__c}" /></td></tr>
+			</table>
+			<br />
+			<apex:actionFunction action="{!methodOne}"
+				name="methodOneInJavascript" rerender="allsections">
+				<apex:param name="firstParam" assignTo="{!Bundlequantity}" value="" />
+			</apex:actionFunction>
+			<apex:actionFunction action="{!updateTotal}" name="totalUpdate"
+				rerender="allsections">
+				<apex:param name="ProdId" value="" />
+			</apex:actionFunction>
+			<apex:actionFunction action="{!updateTotalOfProducts}"
+				name="TotalOfProducts" rerender="allsections">
+				<apex:param name="ProdId2" value="" />
+			</apex:actionFunction>
+			<apex:actionFunction action="{!clearProducts}"
+				name="methodfourInJavascript" rerender="allsections" />
+			<apex:actionFunction action="{!callBundlesPicklist}"
+				name="methodTwoInJavascript"
+				rerender="myform,bundle,allsections,errormesg" status="status"
+				oncomplete="removRecords()" />
+			<apex:actionFunction action="{!DisplayRelatedOptionalAdOnProducts}"
+				name="methodThreeInJavascript"
+				rerender="myform,allsections,errormesg" status="status1"
+				oncomplete="removRecords()" />
+				
+			<script>
+             function testing(e){
+             methodOneInJavascript(e);
+             }
+             function removRecords(){
+             methodfourInJavascript();
+             }
+             function changesetting(){
+             var txt = '{!opp.Pricebook2Id}';
+             console.log(txt);
+             if(txt){
+	 var texttobeAlert = "If you change this setting, all the products will be removed from this opportunity in order to start the new package. Do you wish to continue?";
+	 var answer = confirm(texttobeAlert)
+		if (answer){
+        	methodTwoInJavascript();
+		} }else{methodTwoInJavascript();
+		}
+	 }
+	 function changesetting1(){
+	 var txt = '{!opp.primary_bundle__c}';
+             console.log(txt);
+             if(txt){
+	 var texttobeAlert = "If you change this setting, all the products will be removed from this opportunity in order to start the new package. Do you wish to continue?";
+	 var answer = confirm(texttobeAlert)
+		if (answer){
+        	methodThreeInJavascript();
+		} }else{methodThreeInJavascript();}
+	 }
+	
+	 function updateTotalforSp(Id)
+	{
+	 var common_id=Id.replace("salep","");
+	  var qty=common_id+"quan";
+	 var price=common_id+"salep";
+	 var total=common_id+"ttl";
+	 var lprice=common_id+"ListPrice";
+	 var subttl="apexPage:comp:apexCom:myform:PB:sub_total";
+	
+	 var GrandTotal="apexPage:comp:apexCom:myform:PB:grand_ttl";
+	
+	var grantotal=document.getElementById(GrandTotal).innerHTML;
+	grantotal=grantotal.replace("$","");
+	grantotal=grantotal.replace(",","");
+	 
+	
+	 
+	 if(accounting.unformat(document.getElementById(subttl).innerHTML)>0 && accounting.unformat(document.getElementById(total).innerHTML)>0)
+	{
+	document.getElementById(subttl).innerHTML=accounting.unformat(document.getElementById(subttl).innerHTML) - parseFloat(document.getElementById(total).innerHTML);
+	document.getElementById(GrandTotal).innerText= accounting.unformat(grantotal) -  accounting.unformat(document.getElementById(total).innerHTML);
+	}
+	 
+	document.getElementById(total).innerHTML  = accounting.unformat(document.getElementById(price).value) * accounting.unformat(document.getElementById(qty).value);
+	
+	if(parseFloat(document.getElementById(total).innerHTML)>0)
+	{
+	document.getElementById(subttl).innerHTML=accounting.unformat(document.getElementById(subttl).innerText) + accounting.unformat(document.getElementById(total).innerText);
+	}
+	  grantotal=document.getElementById(GrandTotal).innerHTML;
+	grantotal=grantotal.replace("$","");
+	grantotal=grantotal.replace(",","");
+	if(accounting.unformat(document.getElementById(subttl).innerText)>0)
+	{
+	
+	document.getElementById(GrandTotal).innerText= accounting.unformat(grantotal) + accounting.unformat(document.getElementById(subttl).innerText);
+	console.log(document.getElementById(GrandTotal).innerText);
+	}
+	document.getElementById(GrandTotal).innerText=accounting.formatMoney(document.getElementById(GrandTotal).innerText);
+	document.getElementById(subttl).innerHTML=accounting.formatMoney(document.getElementById(subttl).innerHTML);
+	 }
+	
+  function updateTotal(Id)
+  {
+  	 
+	 var common_id=Id.replace("quan","");
+	 
+	 var qty=common_id+"quan";
+	 var price=common_id+"salep";
+	 var total=common_id+"ttl";
+	 var lprice=common_id+"ListPrice";
+	
+	 var subttl="apexPage:comp:apexCom:myform:PB:sub_total";
+	 var GrandTotal="apexPage:comp:apexCom:myform:PB:grand_ttl";
+	
+	var grantotal=document.getElementById(GrandTotal).innerHTML;
+	grantotal=grantotal.replace("$","");
+	grantotal=grantotal.replace(",","");
+	 
+	if(accounting.unformat(document.getElementById(subttl).innerHTML)>0 && accounting.unformat(document.getElementById(total).innerHTML)>0)
+	{
+	console.log(document.getElementById(GrandTotal).innerText);
+	document.getElementById(subttl).innerHTML=accounting.unformat(document.getElementById(subttl).innerHTML) - accounting.unformat(document.getElementById(total).innerHTML);
+	document.getElementById(GrandTotal).innerText= accounting.unformat(grantotal) -  accounting.unformat(document.getElementById(total).innerHTML);
+	console.log(document.getElementById(GrandTotal).innerText);
+	}
+	
+	if(document.getElementById(price).value==0)
+	{
+		if(parseFloat(document.getElementById(lprice).innerHTML)>0)
+		{
+		document.getElementById(price).value=document.getElementById(lprice).innerHTML;
+		}
+		else
+		{
+		
+		document.getElementById(price).value=0;
+		
+		}
+	}
+	
+	document.getElementById(total).innerHTML  = accounting.unformat(document.getElementById(price).value) * accounting.unformat(document.getElementById(qty).value);
+	
+	if(accounting.unformat(document.getElementById(total).innerHTML)>0)
+	{
+	
+	document.getElementById(subttl).innerHTML=accounting.unformat(document.getElementById(subttl).innerText) + accounting.unformat(document.getElementById(total).innerText);
+	
+	}
+	 grantotal=document.getElementById(GrandTotal).innerHTML;
+	grantotal=grantotal.replace("$","");
+	grantotal=grantotal.replace(",","");
+	if(accounting.unformat(document.getElementById(subttl).innerText)>0)
+	{
+	
+	document.getElementById(GrandTotal).innerText= accounting.unformat(grantotal) + accounting.unformat(document.getElementById(subttl).innerText);
+	console.log(document.getElementById(GrandTotal).innerText);
+	}
+	document.getElementById(GrandTotal).innerText=accounting.formatMoney(document.getElementById(GrandTotal).innerText);
+	document.getElementById(subttl).innerHTML=accounting.formatMoney(document.getElementById(subttl).innerHTML);
+  }
+	
+	
+ function updateTotalpro(Id)
+ 	 {
+  	 
+		 var common_id=Id.replace("proqty","");
+		 
+		 var qty=common_id+"proqty";
+		 var price=common_id+"prosale";
+		 var total=common_id+"prosubtotal";
+		 var lprice=common_id+"proListP";
+		
+		 var subttl="apexPage:comp:apexCom:myform:PB:subttl2";
+		 var GrandTotal="apexPage:comp:apexCom:myform:PB:grand_ttl";
+		
+		var grantotal=document.getElementById(GrandTotal).innerHTML;
+		grantotal=grantotal.replace("$","");
+		grantotal=grantotal.replace(",","");
+		 
+		if(accounting.unformat(document.getElementById(subttl).innerHTML)>0 && accounting.unformat(document.getElementById(total).innerHTML)>0)
+		{
+		console.log(document.getElementById(GrandTotal).innerText);
+		document.getElementById(subttl).innerHTML=accounting.unformat(document.getElementById(subttl).innerHTML) - accounting.unformat(document.getElementById(total).innerHTML);
+		document.getElementById(GrandTotal).innerText= accounting.unformat(grantotal) -  accounting.unformat(document.getElementById(total).innerHTML);
+		console.log(document.getElementById(GrandTotal).innerText);
+		}
+		
+		if(document.getElementById(price).value==0)
+		{
+			if(document.getElementById(lprice).innerHTML!=null)
+			{
+			document.getElementById(price).value=accounting.unformat(document.getElementById(lprice).innerHTML);
+			}else
+			{
+			document.getElementById(price).value=0;
+			}
+		}
+		
+		document.getElementById(total).innerHTML  = accounting.unformat(document.getElementById(price).value) * accounting.unformat(document.getElementById(qty).value);
+		
+		if(accounting.unformat(document.getElementById(total).innerHTML)>0)
+		{
+		document.getElementById(subttl).innerHTML=accounting.unformat(document.getElementById(subttl).innerText) + accounting.unformat(document.getElementById(total).innerText);
+		}
+		grantotal=document.getElementById(GrandTotal).innerHTML;
+		grantotal=grantotal.replace("$","");
+		grantotal=grantotal.replace(",","");
+		
+		if(accounting.unformat(document.getElementById(subttl).innerText)>0)
+		{
+		document.getElementById(GrandTotal).innerText= accounting.unformat(grantotal) + accounting.unformat(document.getElementById(subttl).innerText);
+		console.log(document.getElementById(GrandTotal).innerText);
+		}
+		document.getElementById(GrandTotal).innerText=accounting.formatMoney(document.getElementById(GrandTotal).innerText);
+		document.getElementById(subttl).innerHTML=accounting.formatMoney(document.getElementById(subttl).innerHTML);
+  }
+	
+	
+function updateTotalforSpPro(Id)
+	{
+	 var common_id=Id.replace("prosale","");
+	 var qty=common_id+"proqty";
+	 var price=common_id+"prosale";
+	 var total=common_id+"prosubtotal";
+	 var lprice=common_id+"proListP";
+	 var subttl="apexPage:comp:apexCom:myform:PB:subttl2";
+	
+	 var GrandTotal="apexPage:comp:apexCom:myform:PB:grand_ttl";
+	
+	var grantotal=document.getElementById(GrandTotal).innerHTML;
+	
+	grantotal=grantotal.replace("$","");
+	grantotal=grantotal.replace(",","");
+	 
+	
+	 
+	 if(accounting.unformat(document.getElementById(subttl).innerHTML)>0 && accounting.unformat(document.getElementById(total).innerHTML)>0)
+	{
+	document.getElementById(subttl).innerHTML=accounting.unformat(document.getElementById(subttl).innerHTML) - accounting.unformat(document.getElementById(total).innerHTML);
+	document.getElementById(GrandTotal).innerText= accounting.unformat(grantotal) -  accounting.unformat(document.getElementById(total).innerHTML);
+	}
+	 
+	document.getElementById(total).innerHTML  = accounting.unformat(document.getElementById(price).value) * accounting.unformat(document.getElementById(qty).value);
+	
+	if(parseFloat(document.getElementById(total).innerHTML)>0)
+	{
+	document.getElementById(subttl).innerHTML=accounting.unformat(document.getElementById(subttl).innerText) + accounting.unformat(document.getElementById(total).innerText);
+	}
+	  grantotal=document.getElementById(GrandTotal).innerHTML;
+	grantotal=grantotal.replace("$","");
+	grantotal=grantotal.replace(",","");
+	if(accounting.unformat(document.getElementById(subttl).innerText)>0)
+	{
+	
+	document.getElementById(GrandTotal).innerText= accounting.unformat(grantotal) + accounting.unformat(document.getElementById(subttl).innerText);
+	console.log(document.getElementById(GrandTotal).innerText);
+	}
+	document.getElementById(GrandTotal).innerText=accounting.formatMoney(document.getElementById(GrandTotal).innerText);
+	document.getElementById(subttl).innerHTML=accounting.formatMoney(document.getElementById(subttl).innerHTML);
+}
+	
+	
+	
+	
+	 function updateTotalOfProducts(Id){
+	 TotalOfProducts(Id);
+	 }
+	 
+             </script>
+
+
+			<apex:outputPanel id="allsections" rendered="{!disablepbs}">
+				<apex:variable var="AllSectionsGrandTotal2" value="{!0}" />
+				<apex:variable var="grandTotal" value="{!0}" />
+				<apex:variable var="grandTotaltest" value="{!0}" />
+				<apex:pageBlockSection title="Products in Package" id="PBS"
+					rendered="{!NOT(dispNextBtn)}">
+
+					<apex:dataTable value="{!WrapperOfIncludedProductList}" var="Inpitem" rowClasses="odd,even" width="230%" rendered="{!WrapperOfIncludedProductList.size > 0}"
+						columnsWidth="20%,20%" id="DT" styleclass="tablesorter">
+						<!-- <apex:column headerValue="Sort Order">
+							<apex:outputText value="{0, number, 0000.0}">
+   							<apex:param value="{!Inpitem.includedProduct.Sort_Order__c}" /></apex:outputText>
+						</apex:column> -->
+						<apex:column headerValue="Name">
+							<apex:outputField value="{!Inpitem.includedProduct.Product__r.Name}" />
+						</apex:column>
+						<apex:column headerValue="Qty Per Bundle">
+							<apex:outputField value="{!Inpitem.includedProduct.Quantity__c}"
+								style="width:250px" id="qty" />
+						</apex:column>
+						<apex:column headerValue="Qty This Sale">
+							<apex:outputText value="{!Inpitem.QtyCal}" id="txt" />
+						</apex:column>
+						<apex:column headerValue="List Price">
+							<apex:outputtext value="$ {!ProductidToPricebookEntry[Inpitem.includedProduct.Product__c].UnitPrice}" />
+						</apex:column>
+						<apex:column headerValue="Total">
+							<apex:outputtext value="$ {!IF(Inpitem.QtyCal > 0 , Inpitem.QtyCal * ProductidToPricebookEntry[Inpitem.includedProduct.Product__c].UnitPrice, 0)}">
+								<apex:variable var="grandTotal"
+									value="{!grandTotal + (Inpitem.QtyCal * ProductidToPricebookEntry[Inpitem.includedProduct.Product__c].UnitPrice)}" />
+								<apex:variable var="grandTotaltest"
+									value="{!grandTotaltest + (Inpitem.quan * ProductidToPricebookEntry[Inpitem.includedProduct.Product__c].UnitPrice)}" />
+							</apex:outputtext>
+						</apex:column>
+					</apex:dataTable>
+				</apex:pageBlockSection>
+				<apex:outputPanel rendered="{!NOT(dispNextBtn)}">
+					<div style="text-align: right;">
+						<b>Total: </b>$ {!grandTotal}
+					</div>
+				</apex:outputPanel>
+				<apex:variable var="grandTotal1" value="{!0}" />
+				<apex:pageBlockSection title="Optional Add-On Products in Selected Package"
+					rendered="{!NOT(dispNextBtn)}">
+					<apex:dataTable value="{!listOfOptionalAdOnWrapper}" var="pitem"
+						rowClasses="odd,even" width="155%"
+						rendered="{!listOfOptionalAdOnWrapper.size > 0}"
+						columnsWidth="20%,20%">
+						<!-- <apex:column headerValue="Sort Order">
+							<apex:outputText value="{0, number, 0000.0}">
+   							<apex:param value="{!pitem.optionaladon.Sort_Order__c}" /></apex:outputText>
+						</apex:column> -->
+						<apex:column headerValue="Name" >
+							<apex:outputField value="{!pitem.optionaladon.Product__r.Name}" />
+						</apex:column>
+						<apex:column headerValue="Quantity" >
+							<apex:inputText value="{!pitem.quantity}"
+								onchange="updateTotal(this.id)" id="quan" />
+						</apex:column>
+						<apex:column headerValue="Description">
+							<apex:inputText value="{!pitem.description}" style="width:200px"/>
+						</apex:column>
+						<apex:column headerValue="List Price" >
+                            $ <apex:outputtext id="ListPrice"
+								value="{!ProductidToPricebookEntryOfOptionalAdOnProduct[pitem.optionaladon.Product__c].UnitPrice}" />
+						</apex:column>
+						<apex:column headerValue="Sales Price" >
+							<apex:inputText value="{!pitem.isselected}"
+								onchange="updateTotalforSp(this.id)" id="salep" />
+						</apex:column>
+						<apex:column headerValue="Total">$
+							<apex:outputText value="{0, number,###,###,##0.00}" id="ttl" >
+ 								<apex:param value="{!pitem.quantity * pitem.isselected}" />
+								<apex:variable var="grandTotal1"
+									value="{!grandTotal1 + (pitem.quantity * pitem.isselected)}" />
+							</apex:outputText>
+						</apex:column>
+						
+					</apex:dataTable>
+				</apex:pageBlockSection>
+				<apex:outputPanel rendered="{!NOT(dispNextBtn)}">
+					<div style="text-align: right;">
+						<b>Total: </b>
+						<apex:outputText id="sub_total" value="{0, number,$###,###,##0.00}">
+							<apex:param value="{!Ttotal}" />
+						</apex:outputText>
+					</div>
+				</apex:outputPanel>
+				<apex:variable var="grandTotal2" value="{!0}" />
+				<apex:pageBlockSection title="Other Possible Products "
+					rendered="{!NOT(dispNextBtn)}" id="Pageblksection">
+					<apex:dataTable value="{!allProductsEveryBundleCheckboxcheckedList}" id="dt"
+						var="pro" rowClasses="odd,even" width="155%"
+						rendered="{!allProductsEveryBundleCheckboxcheckedList.size > 0}"
+						columnsWidth="20%,20%">
+
+					<apex:column headerValue="Name" >
+							<apex:outputField value="{!pro.product.Name}" />
+						</apex:column>
+						<apex:column headerValue="Quantity" >
+							<apex:inputText value="{!pro.quantity}" 
+								onchange="updateTotalpro(this.id)" 
+								id="proqty" />
+						</apex:column>
+						<apex:column headerValue="Description">
+							<apex:inputText value="{!pro.description}" />
+						</apex:column>
+						<apex:column headerValue="List Price" > $ 
+							<apex:outputText value="{!mapToProducts[pro.product].UnitPrice}" id="proListP" />
+						</apex:column>
+						<apex:column headerValue="Sales Price" >
+							<apex:inputText value="{!pro.productcheckbox}"
+								onchange="updateTotalforSpPro(this.id)" 
+								id="prosale" />
+						</apex:column>
+						<apex:column headerValue="Total"> $
+							<apex:outputText value="{0, number,###,###,##0.00}" id="prosubtotal">
+								<apex:param value="{!pro.product.Quantity__c * pro.productcheckbox}" />
+								<apex:variable var="grandTotal2"
+									value="{!grandTotal2 + (pro.product.Quantity__c * pro.productcheckbox)}" />
+								</apex:outputtext>
+						</apex:column>
+						
+					</apex:dataTable>
+				</apex:pageBlockSection>
+				<apex:outputPanel rendered="{!NOT(dispNextBtn)}">
+					<div style="text-align: right;">
+						<b>Total: </b>
+						<apex:outputText id="subttl2" value="{0, number,$###,###,##0.00}">
+							<apex:param value="{!Ttotal1}" />
+						</apex:outputText>
+					</div>
+					<br />
+				</apex:outputPanel>
+				<apex:variable var="AllSectionsGrandTotal2"
+					value="{!grandTotal+Ttotal+Ttotal1}" />
+				<apex:outputPanel rendered="{!NOT(dispNextBtn)}">
+					<div style="text-align: right;">
+						<b>Grand Total: </b>
+						<apex:outputText id="grand_ttl" value="{0, number,###,###,##0.00}">
+							<apex:param value="{!AllSectionsGrandTotal2}" />
+						</apex:outputText>
+					</div>
+				</apex:outputPanel>
+			</apex:outputPanel>
+			<apex:PageBlockButtons id="PBBtn">
+				<apex:CommandButton value="Update Opportunity With Changes"
+					action="{!doupdateAllProductRecords}" rerender="allsections,myform"
+					oncomplete="window.top.location.reload();"
+					rendered="{!NOT(dispNextBtn)}" />
+			</apex:PageBlockButtons>
+		</apex:pageBlock>
+	</apex:form>
+</apex:component>

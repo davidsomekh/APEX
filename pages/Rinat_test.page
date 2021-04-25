@@ -1,0 +1,7 @@
+<apex:page standardController="Opportunity" >
+  <!-- Begin Default Content REMOVE THIS -->
+  <h1>hi   </h1> <br></br>
+   <p>You are viewing the {!Opportunity.name} Opportunity.</p>
+ אתה לעולם לא תדע כמה הרבה עליך לדעת כדי לדעת כמה מעט אתה יודע!
+  <!-- End Default Content REMOVE THIS -->
+</apex:page>

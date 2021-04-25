@@ -1,0 +1,240 @@
+<!-- Created By: snapp
+Created Date : 28-Oct-2015
+Purpose : This is to generate the Ouote PDF attachment while sending email -->
+<apex:component controller="GenerateQuote" access="global">
+ <apex:attribute name="oppId" type="String" description="Opp Id" assignTo="{!oppIdString}" />
+ <!-- ******* PLEASE DONT DELETE the hidden component !!! -->
+ <!-- ************* Hidden component to get the deal id value in the component method -->
+ <div style="display:none;">{!oppIdString}}</div>
+ <!-- ********************************************** -->
+ <html>
+ <head>
+                <style type="text/css" media="print">
+                        
+                       @page:first {
+                       @top-center {
+                                       content: element(header);
+
+                                }
+
+                       @bottom-left {
+                                     content: element(footer);
+                                    }
+
+                       }
+
+                       div.header {
+                                   
+                                   position: running(header);
+
+                                }
+                       div.footer {
+
+                                display: block;
+                                padding: 5px;
+                                position: running(footer);
+
+                                }
+
+                      .pagenumber:before {
+                                 content: counter(page);
+                                }
+
+                      .pagecount:before {
+                                content: counter(pages);
+
+                                }
+                       .wrapWithWordBreak {
+                                 word-wrap: break-word;
+                        }
+
+                    </style>
+              </head>
+              
+    <body>          
+    <div class="header" style="text-align:center;font-size:32px; color:#B22222;">
+        <b>SolidCAM, Inc.</b>
+    </div>
+    <br/><br/>
+                <div style="width:40%">
+                    <apex:image url="{!$Resource.SolidCAMLogo}" width="75%"/>
+                </div><br/>
+            <table width="100%" cellspacing="5" style="padding-bottom:2%">
+            <tr>
+                <td><table cellspacing="0" width="80%" border="1" style="font-size: 12px;">
+                    <tr>
+                        <th bgcolor="#B5B5AB">Date</th>
+                        <th bgcolor="#B5B5AB">Quote No.</th>
+                        <th bgcolor="#B5B5AB">Expiration Date</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <apex:outputText value="{0, date, short}">
+                                <apex:param value="{!opp.Quote_Date__c}"/>
+                            </apex:outputText>
+                        </td>
+                        <td>
+                            {!opp.Name}Quote_V{!currentVersion}
+
+                        </td>
+                        <td>
+                            <apex:outputText value="{0, date, short}">
+                                <apex:param value="{!opp.Quote_Expiry_Date__c}"/>
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                
+                </table>
+            </td>
+                <td>
+                    <table width="100%" border="1" cellspacing="0" style="font-size: 12px;">
+                        <tr>
+                            <td bgcolor="#B5B5AB">
+                                <b>Remit To</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {!u.Remit_Address__c}
+                            </td>
+                        </tr>
+                        
+                    </table>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <table width="80%" border="1" cellspacing="0" style="font-size: 12px;float:left;">
+                        <tr>
+                            <td bgcolor="#B5B5AB">
+                                <b>Customer</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            {!ocr.Contact.Name}<br/>
+                            {!opp.Account.Name}<br/>
+                            <apex:outputText rendered="{!IF(opp.Account.BillingStreet!=null,true,false)}">
+                                    <b>Billing Address</b>: <br/>
+                                    {!opp.Account.BillingStreet}<br/>
+                                    {!opp.Account.BillingCity}, &nbsp; {!opp.Account.BillingState} &nbsp; {!opp.Account.BillingPostalCode}<br/>
+                                    {!opp.Account.BillingCountry}
+                            </apex:outputText><br/>
+                            <apex:outputText rendered="{!IF(opp.Account.ShippingStreet!=null,true,false)}">
+                                    <b>Shipping Address </b>:<br/>
+                                    {!opp.Account.ShippingStreet}<br/>
+                                    {!opp.Account.ShippingCity}, &nbsp; {!opp.Account.ShippingState} &nbsp; {!opp.Account.ShippingPostalCode}<br/>
+                                    {!opp.Account.ShippingCountry}
+                            </apex:outputText><br/>
+                            </td>
+                        </tr>
+                        
+                    </table>
+                </td>
+                <td>
+                        <table width="100%" border="1" cellspacing="0" style="font-size: 12px;">
+                        <tr>
+                            <td bgcolor="#B5B5AB">
+                                <b>Account Manager</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {!opp.Sales_Person__r.Name}<br/>
+                                Email : {!opp.Sales_Person__r.Email} <br/>
+                                Phone : {!opp.Sales_Person__r.Phone}<br/>
+                            </td>
+                        </tr>
+                        
+                    </table>
+                </td>
+            </tr>
+            </table>
+                
+    
+    
+
+                    
+                
+                    
+        
+
+    
+    
+    <apex:variable value="{!0}" var="sum"/>
+    <apex:repeat value="{!prdWrapper}" var="pd">
+        <apex:variable value="{!(sum+pd.total)}" var="sum"/>
+    </apex:repeat>
+    <apex:outputText value="{!opp.Quote_Intro__c}" rendered="{!IF(opp.Quote_Intro__c!=null,true,false)}"/>
+    <table border="1" cellspacing="0" width="100%" style="font-size: 14px;">
+        <tr>
+            <td align="center" bgcolor="#B5B5AB" width="20%"><b>Item</b></td>
+            <td align="center" bgcolor="#B5B5AB" width="45%"><b>Description</b></td>
+            <td align="center" bgcolor="#B5B5AB" width="5%"><b>Quantity</b></td>
+            <td align="center" bgcolor="#B5B5AB" width="15%"><b>Rate</b></td>
+            <td align="center" bgcolor="#B5B5AB" width="15%"><b>Total</b></td>
+        </tr>
+        
+        <apex:repeat value="{!prdWrapper}" var="p">
+        <tr>
+            <td  valign="top">{!p.item}</td>
+            <td  valign="top" class="wrapWithWordBreak">{!p.description}</td>
+            <td  align="center" valign="top">{!ROUND(p.quantity,0)}</td>
+            <td  align="right" valign="top">{!curencyCode}
+                <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                    <apex:param value="{!p.rate}"/>
+                </apex:outputText>
+            </td>
+            <td  align="right" valign="top">{!curencyCode}
+                <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                    <apex:param value="{!p.total}"/>
+                </apex:outputText>
+            </td>
+        </tr>
+        </apex:repeat>
+        
+        <tr>
+            <td colspan="4" align="right" bgcolor="#B5B5AB"><b>Total</b></td>
+            <td align="right" bgcolor="#B5B5AB">{!curencyCode}
+                <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                    <apex:param value="{!sum}"/>
+                </apex:outputText>
+            </td>
+        </tr>
+    </table><br/>
+    
+    <div width="100%" style="font-size: 12px;">
+    <apex:repeat value="{!conList}" var="condition">
+    <apex:outputText value="{!condition.Text__c}" escape="false" />
+    </apex:repeat>
+    <apex:outputText value="{!opp.Add_Rep_Quote_T_C__c}" rendered="{!IF(opp.Add_Rep_Quote_T_C__c!=null,true,false)}" />
+    
+    </div><br/>
+    
+        <!--<table width="40%" border="1" cellspacing="0" style="font-size: 12px;">
+                        <tr>
+                            <td bgcolor="#B5B5AB">
+                                <b>Signature</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {!opp.Sales_Person__r.Name}<br/>
+                                Email : {!opp.Sales_Person__r.Email} <br/>
+                                Phone : {!opp.Sales_Person__r.Phone}<br/>
+                            </td>
+                        </tr>
+                        
+                    </table><br/>
+                    -->
+    
+    <table width="100%" cellspacing="0" border="0" style="font-size: 12px;">
+        <tr>
+            <td style="text-align: left" width="50%">Accepted By</td>
+            <td style="text-align: right" width="50%">Accepted Date</td>
+        </tr>
+    </table>
+    </body>
+    </html>
+</apex:component>

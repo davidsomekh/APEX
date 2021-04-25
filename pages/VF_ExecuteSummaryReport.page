@@ -1,0 +1,83 @@
+<apex:page controller="CTRL_ExecuteSummaryReport" standardStylesheets="false">
+<!-- 	<apex:stylesheet value="https://dl.dropboxusercontent.com/u/82342093/FreeForm/apps/css/wrap-bootstrap.css" /> -->
+	<apex:includeScript value="{!URLFOR($Resource.jquery)}"/>
+	<style>
+      table.reportResults { 
+          width: 100%;
+      }
+      table.reportResults thead tr  {  background-color: #f2f3f3;  }
+      table.reportResults thead tr th {   padding:4px; border-style: solid;
+border-color: #e0e3e5;
+border-width: 1px 0 1px 1px;}
+      table.reportResults tbody tr  { background-color: #d5ddf3;  }
+     table.reportResults tbody tr td {  padding:5px; border-style: solid;
+border-color: #e0e3e5;
+border-width: 1px 0 0 0;}
+      table.reportResults tr.grand-total  { background-color: #818290;color: white;font-weight: bold;}
+      table.reportResults tr.grand-total td{color: white;padding:8px;}
+	</style>
+    <script>
+    	$(document).ready(
+    		function(){$('.reportResults').hide();runReport();}
+    	)
+    	
+    	var formatTable = function(){
+    		$('table.reportResults thead th').filter(':last').hide();
+    		$('table.reportResults tbody tr').each(function(){
+    			var last = $(this).find('td').filter(':last');
+    			var recordLabel = (last.html()=='1')?'Record':'Records';
+				$(this).find('td').filter(':first').append(' ('+last.html()+' '+recordLabel+')');
+				last.hide();
+			})
+    	}
+    </script>
+ <div class="wrap">
+ <apex:form >
+ 	<apex:actionFunction name="runReport" action="{!runReport}" reRender="poller,reportResults" />
+    <apex:actionPoller action="{!checkForReportResults}" id="poller" reRender="reportResults" interval="5" enabled="{!reportIsRunning}" oncomplete="formatTable()"/>
+<!--     <apex:commandButton action="{!runReport}" reRender="poller,reportResults" value="Run Report"/> -->
+ </apex:form>
+
+  <apex:outputPanel id="reportResults" layout="block">
+  	  <apex:image value="/img/loading32.gif" rendered="{!reportIsRunning}"/> 	
+      <apex:outputText value="Running..." rendered="{!reportIsRunning}"/>
+      <apex:outputPanel rendered="{!NOT(reportIsRunning)}">
+         <table  cellspacing="0" cellpadding="0" class="reportResults table table-bordered">
+           <thead>
+           	   <tr>	
+           	   <th>Reseller</th>
+               <apex:repeat value="{!reportResults.reportMetadata.aggregates}" var="aggName">
+                   <th><apex:outputText value="{!reportResults.reportExtendedMetadata.aggregateColumnInfo[aggName].label}"/></th>
+               </apex:repeat>
+               </tr>
+               
+           </thead>
+ 			
+           <tbody>
+           	<tr class="grand-total">
+	           		<td>Grand Total</td>
+	           		<apex:repeat value="{!reportResults.factMap['T!T'].aggregates}" var="cell">
+	           			<td>{!cell.label}</td>
+	           		</apex:repeat>
+	           	</tr>
+				<apex:repeat value="{!reportResults.GroupingsDown.groupings}" var="group">
+					<tr class="dataRow">
+						<td class="dataCell">Reseller:&nbsp;<apex:outputlink value="{!group.value}">{!group.label}</apex:outputlink></td>
+						<apex:variable var="tKey" value="{!group.key}!T"/>
+						<apex:repeat value="{!reportResults.factMap[tKey].aggregates}" var="cell">
+							<td class="dataCell"><apex:outputText value="{!cell.label}"/></td>
+						</apex:repeat>
+					</tr>
+				</apex:repeat>
+				<tr class="grand-total">
+           		<td>Grand Total</td>
+           		<apex:repeat value="{!reportResults.factMap['T!T'].aggregates}" var="cell">
+           			<td>{!cell.label}</td>
+           		</apex:repeat>
+           	</tr>
+           </tbody>
+         </table>
+      </apex:outputPanel>
+  </apex:outputPanel>
+</div>
+</apex:page>

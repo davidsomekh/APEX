@@ -1,0 +1,90 @@
+<apex:page standardController="Dongle__c" extensions="GeneratePK">
+    
+    <apex:includeScript value="{!$Resource.jquery}"/>
+    
+       
+
+
+    
+
+    <apex:form id="form">
+
+    <apex:outputPanel rendered="{!m_finished == false}">
+    <br> <img src="http://sentinel.solidcam.com/images/animatedEllipse.gif" />  </br>
+    </apex:outputPanel>
+    <apex:actionFunction name="GeneratePK" action="{!CancelLicense}" rerender="form" OnComplete="finalRedirect()"/>
+    <apex:outputPanel rendered="{!m_finished == true}">
+
+    <apex:pageMessages />
+
+    </apex:outputPanel>
+
+          
+                       
+            <apex:outputPanel id="status"  styleClass="red">
+                <apex:outputPanel rendered="{!m_name != ''}">
+                <apex:pageBlock mode="edit">
+                     
+              
+                    <apex:pageMessage severity="info"  strength="3"
+                    title="Activation successfully cancelled." 
+                    >
+                    
+                    
+                     
+                    <apex:outputLink styleClass="LinkAtt" value="https://forms.solidcam.com/ldk/download.php?pk={!m_name}">{!m_name}</apex:outputLink>
+                </apex:pageMessage>
+              </apex:pageBlock>
+                </apex:outputPanel>
+            </apex:outputPanel>
+         
+    </apex:form>
+
+<script type="text/javascript">
+
+function finalRedirect()
+{
+        var href = $('.LinkAtt').attr('href');
+        if(href)
+            window.location.href = href;
+}
+
+var sRecordID = '';
+
+var $_GET = {};
+
+        
+if(document.location.toString().indexOf('?') !== -1) {
+    var query = document.location
+                   .toString()
+                   // get the query string
+                   .replace(/^.*?\?/, '')
+                   // and remove any existing hash string (thanks, @vrijdenker)
+                   .replace(/#.*$/, '')
+                   .split('&');
+
+    for(var i=0, l=query.length; i<l; i++) {
+       var aux = decodeURIComponent(query[i]).split('=');
+       $_GET[aux[0]] = aux[1];
+    }
+}
+//get the 'index' query parameter
+
+if($_GET['id'] != null)
+    sRecordID =  $_GET['id'];
+
+if (confirm("Are you sure you want to disable the activation?") == true) {
+         GeneratePK();
+     }
+else
+{
+var sRecord = 'https://eu1.salesforce.com/' + sRecordID;
+        window.location.replace(sRecord);
+}
+   
+
+
+</script>
+
+
+</apex:page>

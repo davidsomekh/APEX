@@ -1,0 +1,6 @@
+<apex:page standardController="Opportunity" sidebar="false" id="apexPage" cache="false"> 
+           <!-- <c:myComponent textValue="This Text is blue" textColor="blue" />
+            <c:myComponent textValue="But this is red" textColor="red" /> --> 
+            <c:SystemSelectionComponent textValue="" textColor="" id="comp"/>
+       
+</apex:page>
