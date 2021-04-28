@@ -24,10 +24,13 @@ global class CodeToCountry {
 	
 	global Map<String,String> m_CodeMAP;
 
+	global Map<String,String> m_CodeMAP_State;
+
  
     global CodeToCountry(){
     	
     	m_CodeMAP = new Map<String, String>();
+		m_CodeMAP_State = new MAP<String,String>();
     	
     	m_CodeMAP.put('AF','Afghanistan');
     	m_CodeMAP.put('AX' , 'Aland Islands');
@@ -275,6 +278,60 @@ global class CodeToCountry {
 		m_CodeMAP.put('YE' , 'Yemen');
 		m_CodeMAP.put('ZM' , 'Zambia');
 		m_CodeMAP.put('ZW' , 'Zimbabwe');
+
+		m_CodeMAP_State.put('Alabama','AL');
+		m_CodeMAP_State.put('Alaska','AK');
+		m_CodeMAP_State.put('Arizona','AZ');
+		m_CodeMAP_State.put('Arkansas','AR');
+		m_CodeMAP_State.put('California','CA');
+		m_CodeMAP_State.put('Colorado','CO');
+		m_CodeMAP_State.put('Connecticut','CT');
+		m_CodeMAP_State.put('Delaware','DE');
+		m_CodeMAP_State.put('District of Columbia','DC');
+		m_CodeMAP_State.put('Florida','FL');
+		m_CodeMAP_State.put('Georgia','GA');
+		m_CodeMAP_State.put('Hawaii','HI');
+		m_CodeMAP_State.put('Idaho','ID');
+		m_CodeMAP_State.put('Illinois','IL');
+		m_CodeMAP_State.put('Indiana','IN');
+		m_CodeMAP_State.put('Iowa','IA');
+		m_CodeMAP_State.put('Kansas','KS');
+		m_CodeMAP_State.put('Kentucky','KY');
+		m_CodeMAP_State.put('Louisiana','LA');
+		m_CodeMAP_State.put('Maine','ME');
+		m_CodeMAP_State.put('Maryland','MD');
+		m_CodeMAP_State.put('Massachusetts','MA');
+		m_CodeMAP_State.put('Michigan','MI');
+		m_CodeMAP_State.put('Minnesota','MN');
+		m_CodeMAP_State.put('Mississippi','MS');
+		m_CodeMAP_State.put('Missouri','MO');
+		m_CodeMAP_State.put('Montana','MT');
+		m_CodeMAP_State.put('Nebraska','NE');
+		m_CodeMAP_State.put('Nevada','NV');
+		m_CodeMAP_State.put('New Hampshire','NH');
+		m_CodeMAP_State.put('New Jersey','NJ');
+		m_CodeMAP_State.put('New Mexico','NM');
+		m_CodeMAP_State.put('New York','NY');
+		m_CodeMAP_State.put('North Carolina','NC');
+		m_CodeMAP_State.put('North Dakota','ND');
+		m_CodeMAP_State.put('Ohio','OH');
+		m_CodeMAP_State.put('Oklahoma','OK');
+		m_CodeMAP_State.put('Oregon','OR');
+		m_CodeMAP_State.put('Pennsylvania','PA');
+		m_CodeMAP_State.put('Rhode Island','RI');
+		m_CodeMAP_State.put('South Carolina','SC');
+		m_CodeMAP_State.put('South Dakota','SD');
+		m_CodeMAP_State.put('Tennessee','TN');
+		m_CodeMAP_State.put('Texas','TX');
+		m_CodeMAP_State.put('Utah','UT');
+		m_CodeMAP_State.put('Vermont','VT');
+		m_CodeMAP_State.put('Virginia','VA');
+		m_CodeMAP_State.put('Washington','WA');
+		m_CodeMAP_State.put('West Virginia','WV');
+		m_CodeMAP_State.put('Wisconsin','WI');
+		m_CodeMAP_State.put('Wyoming','WY');
+
+
 		
     	
 
@@ -294,10 +351,28 @@ global class CodeToCountry {
 		    mail.setToAddresses(new list<string>{'david.somekh@solidcam.com'});
 		    mail.setSubject(subject);
 		    Messaging.sendEmail(new Messaging.Singleemailmessage[] { mail});
-		    return sCountryBack;
+		    return sCountry;
    		}
     	return sFullCountry;
     }
+
+	global String GetStateShortcut(String state)
+    {
+   		String sFullCountry = m_CodeMAP_State.get(state);
+   		if(sFullCountry == null)
+   		{
+   			String subject = 'US state not recognized (' + state + ')';
+			String sContent = 'US state was not recognized ' + state;
+			Messaging.Singleemailmessage mail = new Messaging.Singleemailmessage();
+			mail.setHtmlBody(sContent);
+		    mail.setToAddresses(new list<string>{'david.somekh@solidcam.com'});
+		    mail.setSubject(subject);
+		    Messaging.sendEmail(new Messaging.Singleemailmessage[] { mail});
+		    return state;
+   		}
+    	return sFullCountry;
+    }
+    
     
     
     

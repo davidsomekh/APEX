@@ -15,6 +15,17 @@ trigger OnLeadTrigger on Lead (before insert) {
 			CodeToCountry converter = new CodeToCountry();
 			anylead.Country = converter.ConvertCode(anylead.Country);
 		}
+
+		if(anylead.Country == 'United States')
+		{
+			CodeToCountry StateConvert = new CodeToCountry();
+			String NewState = StateConvert.GetStateShortcut(anylead.State);
+			if(NewState != anylead.State)
+			{
+				anylead.Country = StateConvert.GetStateShortcut(anylead.State);
+				anylead.State = '';
+			}
+		}
 			
 		String anyLeadComments = anyLead.Comments__c;
 		if (anyLeadComments != null){ 

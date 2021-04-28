@@ -20,8 +20,17 @@ public class LeadsTriggerTester {
 		 new_lead2.Country = 'United States';
 		 new_lead2.State = 'NY';
 		 new_lead2.LeadSource = 'Web site (SolidCAM)';
+
+		 Lead new_lead3 = new Lead();
+		 new_lead3.LastName = 'lead1';
+		 new_lead3.Comments__c = 'zulu';
+		 new_lead3.Email = 'some.one.test@gmali.com';
+		 new_lead3.Company = 'Test2';
+		 new_lead3.Country = 'US';
+		 new_lead3.LeadSource = 'Facebook (Trial)';
 		 
 		 insert new_lead;
 		 insert new_lead2;								   
+		 insert new_lead3;
 	}
 }
