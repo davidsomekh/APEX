@@ -27,6 +27,7 @@ public class LeadsTriggerTester {
 		 new_lead3.Email = 'some.one.test@gmali.com';
 		 new_lead3.Company = 'Test2';
 		 new_lead3.Country = 'US';
+		 new_lead3.State = 'New York';
 		 new_lead3.LeadSource = 'Facebook (Trial)';
 		 
 		 insert new_lead;

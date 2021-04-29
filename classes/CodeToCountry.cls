@@ -351,7 +351,7 @@ global class CodeToCountry {
 		    mail.setToAddresses(new list<string>{'david.somekh@solidcam.com'});
 		    mail.setSubject(subject);
 		    Messaging.sendEmail(new Messaging.Singleemailmessage[] { mail});
-		    return sCountry;
+		    return sCountryBack;
    		}
     	return sFullCountry;
     }
