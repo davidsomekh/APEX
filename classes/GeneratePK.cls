@@ -39,7 +39,7 @@ global without sharing class GeneratePK {
 		Probe__c,Probe_Level2__c,Reduced_HolesR__c,Screw_Machining__c,Sim_Turning__c,X5_axis__c,Simultaneous_5_axes_Reduced__c,Simultaneous_4_axes_C_axes__c,SolidCAM_Mill3D__c,
 		SolidCAM_Mill_3D_No_Engraving__c,SolidCAM_Turning__c,SolidCAM_WireEDM_2_axes__c,SolidCAM_WireEDM_2_4_axes__c,SOLIDWORKS__c,STL_Support__c,Swarf_machining__c,TDM__c,
 		WinTool__c,XpressPlus__c,Zoller_integration__c,Multi_Turret_Sync__c,SolidCAM_2_7D_CONSTANT_Z__c,Profile__c,BaseModeler__c,Bently__c,Editor_Mode__c,Multi_depth_Drill__c,Swiss_Type__c,Eureka_Simulator__c,Eureka_Machine_Editor__c,Eureka_Playlist__c,Eureka_Probe__c,Eureka_Cutting_Conditions__c,Eureka_Viewer__c,
-		Cimco__c,Vericut__c,Eureka__c,X5x_Edge_Breaking__c,X5x_Edge_Trimming__c,Tooltable_Only__c,HSM_Basic__c,Cimco_Add_On__c
+		Cimco__c,Vericut__c,Eureka__c,X5x_Edge_Breaking__c,X5x_Edge_Trimming__c,Tooltable_Only__c,HSM_Basic__c,Cimco_Add_On__c,Simulator__c
 		
 		From Profiles__c Where DongleNo__c =: d.Id];
     }
@@ -97,11 +97,11 @@ global without sharing class GeneratePK {
 			return false;
 		}
 		
-		if(d.Network_Profiles_Dongle__c && Editor)
+		/*if(d.Network_Profiles_Dongle__c && Editor)
 		{
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Editor is not supported with profiles on soft license.'));
 			return false;
-		}
+		}*/
 		
 		if(d.Network_Profiles_Dongle__c && Bently)
 		{
@@ -272,6 +272,8 @@ global without sharing class GeneratePK {
 
 		Integer UsersCimcoAddOn = 0;
 		Integer UsersHSMbasic = 0;
+		Integer UsersEditor = 0;
+		Integer UsersSimulator = 0;
 
 	
 
@@ -630,6 +632,18 @@ global without sharing class GeneratePK {
 	    		UsersHSMbasic = UsersHSMbasic += p.Profile_Users__c.intValue();
 	    		J.writeBooleanField('HSMbasic',true);
 			}
+
+			if(p.Editor_Mode__c)
+	    	{
+	    		UsersEditor = UsersEditor += p.Profile_Users__c.intValue();
+	    		J.writeBooleanField('Editor',true);
+			}
+
+			if(p.Simulator__c)
+	    	{
+	    		UsersSimulator = UsersSimulator += p.Profile_Users__c.intValue();
+	    		J.writeBooleanField('Simulator',true);
+			}
 		
 	    	
 	    	
@@ -666,6 +680,7 @@ global without sharing class GeneratePK {
 		J.WriteNumberField('Profile31',UsersTDM);
 		J.WriteNumberField('Profile32',UsersWintool);
 		J.WriteNumberField('Profile37',UsersProfileOnly);
+		J.WriteNumberField('Profile38',UsersEditor);
 		J.WriteNumberField('Profile39',UsersMultiTurret);
 		J.WriteNumberField('Profile41',UsersSimTurn);
 		J.WriteNumberField('Profile42',UsersProbeHome);
@@ -696,7 +711,7 @@ global without sharing class GeneratePK {
 		J.WriteNumberField('Profile76',UsersEurekaView);
 		J.WriteNumberField('Profile77',UsersEurekaPlay);
 		J.WriteNumberField('Profile78',UsersEurekaCut);
-
+		J.WriteNumberField('Profile80',UsersSimulator);
 		J.WriteNumberField('Profile81',UsersBreaking);
 		J.WriteNumberField('Profile82',UsersTrimming);
 		J.WriteNumberField('Profile83',UsersEureka);
@@ -783,7 +798,7 @@ global without sharing class GeneratePK {
 				J.writeBooleanField('Eureka3X',GetEureka3X(d));
 				J.writeBooleanField('EurekaMAMC',GetEurekaMAMC(d));
 				J.writeBooleanField('EurekaMA1C',GetEurekaMA1C(d));
-
+				J.writeBooleanField('Editor',d.Editor_Mode__c);
 				J.writeBooleanField('Simulator',d.Simulator__c);
 				J.writeBooleanField('Tooltable',d.Tooltable_Only__c);
 				J.writeBooleanField('Breaking',d.X5x_breaking__c);
@@ -799,7 +814,7 @@ global without sharing class GeneratePK {
 			J.writeStringField('KeyID',d.Name);
 			J.writeBooleanField('NetProfiles',d.Network_Profiles_Dongle__c);
 			J.writeBooleanField('NX',d.NX__c);
-			J.writeBooleanField('Editor',d.Editor_Mode__c);
+			
 			J.writeBooleanField('EDU',d.EDU__c);
 			J.writeBooleanField('GCODEOFF',d.NO_G_code__c);
 			J.writeBooleanField('EmbeddedFull',d.Embedded_CAD__c == 'Full');
