@@ -139,8 +139,6 @@ public with sharing class CTRL_TotalSeatsReport {
 		
 		nat.add('natalie.somekh@solidcam.com');
 		nat.add('emil.somekh@solidcam.com');
-		nat.add('eddie.pevzner@solidcam.com');
-		nat.add('anna.strizhevski@solidcam.com');
 		nat.add('matan@solidcam.com');
 		string header = htmlHeader();
 		string body = header;
