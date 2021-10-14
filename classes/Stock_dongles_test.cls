@@ -46,7 +46,7 @@ private class Stock_dongles_test {
     	opp2.Licens_type__c	= 'USB Dongle';
     	opp2.Stock_numbres__c='1239512345';
     	opp2.Dongles_type__c = 'Standalone';
-    	opp2.Reseller__c = '00120000003k3Pm';
+    	opp2.Reseller__c = '00120000003k3Ny';
     	opp2.Order_Type__c = 'Subscription';
 		insert opp2;
 		

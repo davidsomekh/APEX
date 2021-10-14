@@ -29,8 +29,33 @@ trigger OppIsraelIndex on Opportunity (before insert)
     List<ID> customersIDs = new List<ID>(); 
 
 	if(pCurrentOPP != null && pCurrentOPP.Reseller_country__c == 'Israel')
-	{
-    //pCurrentOPP.Name = 'Isr9';
+	{   
+        IsraelIndex__c myCS1 = null;
+         Integer index = 0;
+        if(Test.isRunningTest()){
+            index = 1;
+            
+        }
+        else {
+            
+            myCS1 = IsraelIndex__c.getValues('Israel');
+            index = Integer.valueOf(myCS1.Index__c);
+  
+        }
+        
+        if(index == null)
+            index = 0;
+
+        index++;
+        if(!Test.isRunningTest())
+        {
+            myCS1.Index__c = index;
+            update myCS1;
+        }
+
+        pCurrentOPP.IsraelOrderIndex__c =index;
+        pCurrentOPP.Name = 'ISR' + String.valueOf(index);
+       
     }
 		
 		
