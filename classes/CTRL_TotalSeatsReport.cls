@@ -77,7 +77,10 @@ public with sharing class CTRL_TotalSeatsReport {
 				and Xpress_campaign__c = false
 				and Belongs_to_Inactive_Customer__c = 0
 				and Customer__r.Exclude_from_seats_report__c = false
-            Group By Reseller__r.Name, Reseller__c
+				and Editor_Mode__c	= false
+				and Editor_Mode_Light__c = false
+				and Simulator__c = false
+			Group By Reseller__r.Name, Reseller__c
             Order By SUM(Number_of_seats__c) DESC];
             
             options = new List<SelectOption>();

@@ -1,7 +1,7 @@
 trigger LastOppTrigger on Opportunity (after delete, after insert, after undelete, 
 after update) {
 
-	List<ID> customersIDs = new List<ID>();
+List<ID> customersIDs = new List<ID>();
 
 	List<Opportunity> argSales;
 	//	Update last date when customer buyed solidcam
