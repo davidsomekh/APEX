@@ -92,6 +92,61 @@ public with sharing class CTRL_TotalSeatsReport {
             	options.add(new SelectOption(r.reseller.Name, r.reseller.Name));
             	total.addResellerTotal(r);
             }
+			
+
+			List<Dongle__c> recs_customer = new List<Dongle__c>();
+			recs_customer = [Select Reseller__r.Name,Customer__r.AccName__c 
+			From Dongle__c                        
+			Where Active_Key__c=1
+				and Evaluation_Module__c excludes('Loan','Internal Use','Trial')
+				and Reseller__c != null
+				and (Not Reseller__r.Name like '%solidcam edu%')
+				and Supply_Status__c != 'Stock'
+				and EDU__c = false
+				and Evaluation__c = false
+				and (SolidWorks__c = true or Inventor__c = true)
+				and Customer__c != null
+				and (Not Customer__r.Name like '%Unknown%')
+				and (Not Customer__r.Name like '%Stock%')
+				and NO_G_code__c = false
+				and Xpress_campaign__c = false
+				and Belongs_to_Inactive_Customer__c = 0
+				and Customer__r.Exclude_from_seats_report__c = false
+				and Editor_Mode__c	= false
+				and Editor_Mode_Light__c = false
+				and Simulator__c = FALSE  ];
+
+				Map<String, Integer> map_count = new Map<String, Integer>(); 
+				Map<String, Integer> map_dups = new Map<String, Integer>(); 
+
+
+
+				for (Dongle__c rec : recs_customer) {
+					String key = rec.Reseller__r.Name + rec.Customer__r.AccName__c;
+					if(!map_dups.containsKey(key))
+					{
+						map_dups.put(key, 1);
+						if(map_count.containsKey(rec.Reseller__r.Name))
+						{
+							map_count.put(rec.Reseller__r.Name, map_count.get(rec.Reseller__r.Name) + 1);
+						}
+						else 
+						{
+							map_count.put(rec.Reseller__r.Name,1);			
+						}
+					}
+				}
+
+				Integer iTotal = 0;
+
+				for (Reseller row_reseller : resellers) 
+				{
+					iTotal = iTotal + map_count.get(row_reseller.reseller.Name);
+					row_reseller.SetTotalCustomers( map_count.get(row_reseller.reseller.Name));
+
+				}
+
+				total.SetTotalCustomers(iTotal);
 	}
 	
 	private void initAccountToAutomationMailsMap(){
@@ -216,6 +271,7 @@ public with sharing class CTRL_TotalSeatsReport {
 					           	   '<tr bgcolor="#8DB4E2">'+	
 						           	  '<th>Reseller</th>'+
 					                  '<th>Seats</th>'+
+									  '<th>Customers</th>'+
 					                  '<th>SolidWorks</th>'+
 					                  '<th>Inventor</th>'+
 					                  '<th>Xpress</th>'+
@@ -240,6 +296,7 @@ public with sharing class CTRL_TotalSeatsReport {
 				'<tr style="background:#818290; color: white; font-weight: bold; font-family: Calibri,sans-serif!important;">'+
 		       		'<td>'+row.reseller.Name+'('+row.nbRecords+((row.nbRecords > 1)? ' Records)</td>' : ' Record)</td>')+
    					'<td align="center">'+row.nbOfSeats.format()+'</td>'+
+					'<td align="center">'+row.iTotalCustomers.format()+'</td>'+
    					'<td align="center">'+row.nbSolidWorksSeats.format()+'</td>'+
    					'<td align="center">'+row.nbInventorSeats.format()+'</td>'+
    					'<td align="center">'+row.nbSeatXpress.format()+'</td>'+
@@ -264,6 +321,7 @@ public with sharing class CTRL_TotalSeatsReport {
 		       		'<tr style="background:#ddd9c4; font-family: Calibri,sans-serif!important;">'+
    					'<td><a href="'+URL.getSalesforceBaseUrl().toExternalForm()+'/'+row.reseller.Id+'">'+row.reseller.Name+'</a> ('+row.nbRecords+((row.nbRecords > 1)? ' Records)</td>' : ' Record)</td>')+
    					'<td align="center">'+row.nbOfSeats.format()+'</td>'+
+					   '<td align="center">'+row.iTotalCustomers.format()+'</td>'+
    					'<td align="center">'+row.nbSolidWorksSeats.format()+'</td>'+
    					'<td align="center">'+row.nbInventorSeats.format()+'</td>'+
    					'<td align="center">'+row.nbSeatXpress.format()+'</td>'+
@@ -342,6 +400,7 @@ public with sharing class CTRL_TotalSeatsReport {
 		public Integer nbSeatAFRM{get;private set;}
 		public Integer nbSeatTurning{get;private set;}
 		public Integer nbSeatProbe{get;private set;}
+		public Integer iTotalCustomers{get;private set;}
 		
 		public Reseller(AggregateResult ar){
 			reseller = new Account(name = (String)(ar.get('Name')), Id=(Id)(ar.get('Reseller__c')));
@@ -360,6 +419,7 @@ public with sharing class CTRL_TotalSeatsReport {
 			nbSeatTurning = Integer.valueOf(ar.get('expr12'));
 			nbSeatProbe = Integer.valueOf(ar.get('expr13'));
 			sendEmail = false;
+			iTotalCustomers = 0;
 		}
 		
 		public Reseller(){
@@ -396,6 +456,11 @@ public with sharing class CTRL_TotalSeatsReport {
 			nbSeatAFRM += r.nbSeatAFRM;
 			nbSeatTurning += r.nbSeatTurning;
 			nbSeatProbe += r.nbSeatProbe;
+		}
+
+		public void SetTotalCustomers(Integer iTotal)
+		{
+			iTotalCustomers = iTotal;
 		}
 		
 		public Decimal getSubscriptionPerc(){

@@ -206,6 +206,7 @@
                            </th> 
                            <th>Reseller</th>
                            <th><apex:outputText value="Seats"/></th>
+                           <th><apex:outputText value="Customers"/></th>
                            <th><apex:outputText value="SolidWorks"/></th>
                            <th><apex:outputText value="Inventor"/></th>
                            <th><apex:outputText value="Xpress"/></th>
@@ -232,6 +233,11 @@
                             <td>
                                 <apex:outputText value="{0, number, ###,###,###}">
                                     <apex:param value="{!total.nbOfSeats}"/>
+                                    </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.iTotalCustomers}"/>
                                 </apex:outputText>
                             </td>
                             <td>
@@ -320,6 +326,11 @@
                                 <td class="dataCell">
                                     <apex:outputText value="{0, number, ###,###,###}">
                                         <apex:param value="{!row.nbOfSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.iTotalCustomers}"/>
                                     </apex:outputText>
                                 </td>
                                 <td class="dataCell">

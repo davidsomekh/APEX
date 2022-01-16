@@ -7,7 +7,7 @@ trigger OnLeadTrigger on Lead (before insert) {
 	// loop over all given Leads look for wrong mail
 	for(Lead anyLead : Trigger.new){
 		
-		if(anylead.LeadSource == 'Facebook (Trial)' && anylead.Country != '')
+		if(anylead.LeadSource.contains('Facebook') && anylead.Country != '')
 		{
 			if(anylead.Do_you_own_CNC_equipment__c == 'no_')
 				anylead.Do_you_own_CNC_equipment__c = 'No';

@@ -9,6 +9,7 @@ public with sharing class Dongle_Generate {
     public Boolean m_pk_progress {get;set;}
     public boolean m_attachment_download {get;set;}
     public transient Attachment m_pk_attachment {get;set;}
+    public Boolean bCimcoUpdated{get;set;}
     
     public List<Profiles__c> m_Profiles {get;set;}
     
@@ -23,6 +24,7 @@ public with sharing class Dongle_Generate {
                     From Dongle__c d
                     where id = :dongle.id];
         updatedDongle = false;
+        bCimcoUpdated = false;
         m_pk_progress = false;
         TestBool = true;
         m_pk_attachment = null;
@@ -201,6 +203,25 @@ public with sharing class Dongle_Generate {
 		
 		
 	}
+
+    public Pagereference AddCimco()
+	{ 
+        dongle.Cimco__c = true;
+        dongle.G_Code_Simulation__c = true;
+        dongle.Dongle_Expiry_Date__c = dongle.New_Maintenance_End_Date__c;
+        dongle.Evaluation_Module__c = 'Cimco';
+
+        update dongle;
+
+        bCimcoUpdated = true;
+
+        return null;
+    }
+
+    public Pagereference StartRecovery()
+	{ 
+        return null;
+    }
 	
 	public Pagereference GenerateLicense()
 	{ 
