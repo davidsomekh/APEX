@@ -56,5 +56,5 @@ trigger OnDongleChange on Dongle__c (after insert, after update, after delete, a
 	}
 	// update account number of subs
 	DongleUpdateNotifier notifier = new DongleUpdateNotifier();
-	notifier.update_all_dongles_counters(donglesList);    
+	notifier.update_all_dongles_counters(donglesList);  
 }

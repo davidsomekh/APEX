@@ -82,7 +82,6 @@ global with sharing class DeletePK
 	
 	webservice static void DeletePKRecord(String PK)
 	{
-		
 		List<Product_keys__c>  DNG =  [Select Name From Product_keys__c
                          Where Name =: PK
 		];

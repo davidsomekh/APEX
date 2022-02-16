@@ -215,13 +215,15 @@
                            <th><apex:outputText value="5X"/></th>
                            <th><apex:outputText value="HSS"/></th>
                            <th><apex:outputText value="Turning"/></th>
+                           <th><apex:outputText value="MillTurn"/></th>
+                           <th><apex:outputText value="Swiss"/></th>
                            <th><apex:outputText value="Probe"/></th>
-                           <th><apex:outputText value="iMachining 2D"/></th>
-                           <th><apex:outputText value="iMachining 2D %"/></th>
-                           <th><apex:outputText value="iMachining 3D"/></th>
-                           <th><apex:outputText value="iMachining 3D %"/></th>
-                           <th><apex:outputText value="Subscription"/></th>
-                           <th><apex:outputText value="Subscription %"/></th>
+                           <th><apex:outputText value="iMach 2D"/></th>
+                           <th><apex:outputText value="iMach 2D %"/></th>
+                           <th><apex:outputText value="iMach 3D"/></th>
+                           <th><apex:outputText value="iMach 3D %"/></th>
+                           <th><apex:outputText value="SUBS"/></th>
+                           <th><apex:outputText value="SUBS %"/></th>
                        </tr>
                        
                    </thead>
@@ -278,6 +280,16 @@
                             <td>
                                 <apex:outputText value="{0, number, ###,###,###}">
                                     <apex:param value="{!total.nbSeatTurning}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.iMTSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.iSwissSeats}"/>
                                 </apex:outputText>
                             </td>
                             <td>
@@ -375,6 +387,16 @@
                                 </td>
                                 <td class="dataCell">
                                     <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.iMTSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
+                                        <apex:param value="{!row.iSwissSeats}"/>
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, ###,###,###}">
                                         <apex:param value="{!row.nbSeatProbe}"/>
                                     </apex:outputText>
                                 </td>
@@ -458,6 +480,17 @@
                                     <apex:param value="{!total.nbSeatTurning}"/>
                                 </apex:outputText>
                             </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.iMTSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.iSwissSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            
                             <td>
                                 <apex:outputText value="{0, number, ###,###,###}">
                                     <apex:param value="{!total.nbSeatProbe}"/>

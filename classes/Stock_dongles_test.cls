@@ -36,6 +36,7 @@ private class Stock_dongles_test {
     	insert opp;
     	
     	DeletePK.DeleteKey('ddd',true);
+		DeletePK.DeletePKRecord('record');
     	
     	Opportunity opp2 = new Opportunity();
 		opp2.name='test';

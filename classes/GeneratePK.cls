@@ -1282,6 +1282,14 @@ global without sharing class GeneratePK {
 	
 	webservice static String PK(ID license,Boolean Validate)
 	{
+		/*String subject = 'Error deleting product key - test'+Id.valueOf(license);
+      			Messaging.Singleemailmessage mail = new Messaging.Singleemailmessage();
+      			mail.setHtmlBody('dave');
+		        mail.setToAddresses(new list<string>{'david.somekh@solidcam.com'});
+		        mail.setSubject(subject);
+		        Messaging.sendEmail(new Messaging.Singleemailmessage[] { mail});
+		        return 'dave';*/
+
 		GeneratePK p = new GeneratePK();
 		
 		return p.GeneratePK(license,false,Validate);
