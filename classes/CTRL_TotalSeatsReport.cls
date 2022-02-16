@@ -60,7 +60,7 @@ public with sharing class CTRL_TotalSeatsReport {
 	}
 	
 	private void init(){
-		AggregateResult[] groupedResults = [Select Reseller__r.Name, Reseller__c, COUNT(ID), SUM(Number_of_seats__c), SUM(SolidWorks_seats__c), SUM(Inventor_seats__c), SUM(HSM_seats__c), SUM(Sim_5x_seats__c), SUM(HSS_seats__c), SUM(iMachining_seats__c), SUM(iMachining3D_seats__c), SUM(Seats_on_subscription__c), SUM(Xpress_seats__c), SUM(AFRM_seats__c), SUM(Turning_seats__c), SUM(Probe_No__c) 
+		AggregateResult[] groupedResults = [Select Reseller__r.Name, Reseller__c, COUNT(ID), SUM(Number_of_seats__c), SUM(SolidWorks_seats__c), SUM(Inventor_seats__c), SUM(HSM_seats__c), SUM(Sim_5x_seats__c), SUM(HSS_seats__c), SUM(iMachining_seats__c), SUM(iMachining3D_seats__c), SUM(Seats_on_subscription__c), SUM(Xpress_seats__c), SUM(AFRM_seats__c), SUM(Turning_seats__c), SUM(Probe_No__c),SUM(SWISS_seats__c),SUM(MT_seats__c) 
 			From Dongle__c                        
 			Where Active_Key__c=1
 				and Evaluation_Module__c excludes('Loan','Internal Use','Trial')
@@ -280,13 +280,15 @@ public with sharing class CTRL_TotalSeatsReport {
 					                  '<th>5X</th>'+
 					                  '<th>HSS</th>'+
 					                  '<th>Turning</th>'+
-					                  '<th>Probe</th>'+
-					                  '<th>iMachining 2D</th>'+
-					                  '<th>iMachining 2D %</th>'+
-					                  '<th>iMachining 3D</th>'+
-					                  '<th>iMachining 3D %</th>'+
-					                  '<th>Subscription</th>'+
-					                  '<th>Subscription %</th>'+
+									  '<th>MillTurn</th>'+
+									  '<th>Swiss</th>'+
+									  '<th>Probe</th>'+
+					                  '<th>iMach 2D</th>'+
+					                  '<th>iMach 2D %</th>'+
+					                  '<th>iMach 3D</th>'+
+					                  '<th>iMach 3D %</th>'+
+					                  '<th>SUB</th>'+
+					                  '<th>SUB %</th>'+
 					              	'</tr>'+
 					          	'</thead>';
 	}
@@ -305,6 +307,8 @@ public with sharing class CTRL_TotalSeatsReport {
   					'<td align="center">'+row.nbSim5xSeats.format()+'</td>'+
    					'<td align="center">'+row.nbHSSSeats.format()+'</td>'+
    					'<td align="center">'+row.nbSeatTurning.format()+'</td>'+
+					'<td align="center">'+row.iSwissSeats.format()+'</td>'+
+					 '<td align="center">'+row.iMTSeats.format()+'</td>'+
    					'<td align="center">'+row.nbSeatProbe.format()+'</td>'+
    					'<td align="center">'+row.nbIMachining2DSeats.format()+'</td>'+
    					'<td align="center">'+row.getIMachining2DPerc().setscale(2)+'</td>'+
@@ -330,6 +334,8 @@ public with sharing class CTRL_TotalSeatsReport {
   					'<td align="center">'+row.nbSim5xSeats.format()+'</td>'+
    					'<td align="center">'+row.nbHSSSeats.format()+'</td>'+
    					'<td align="center">'+row.nbSeatTurning.format()+'</td>'+
+					'<td align="center">'+row.iSwissSeats.format()+'</td>'+
+					'<td align="center">'+row.iMTSeats.format()+'</td>'+
    					'<td align="center">'+row.nbSeatProbe.format()+'</td>'+
    					'<td align="center">'+row.nbIMachining2DSeats.format()+'</td>'+
    					'<td align="center">'+row.getIMachining2DPerc().setscale(2)+'</td>'+
@@ -401,6 +407,9 @@ public with sharing class CTRL_TotalSeatsReport {
 		public Integer nbSeatTurning{get;private set;}
 		public Integer nbSeatProbe{get;private set;}
 		public Integer iTotalCustomers{get;private set;}
+
+		public Integer iSwissSeats{get;private set;}
+		public Integer iMTSeats{get;private set;}
 		
 		public Reseller(AggregateResult ar){
 			reseller = new Account(name = (String)(ar.get('Name')), Id=(Id)(ar.get('Reseller__c')));
@@ -418,6 +427,8 @@ public with sharing class CTRL_TotalSeatsReport {
 			nbSeatAFRM = Integer.valueOf(ar.get('expr11'));
 			nbSeatTurning = Integer.valueOf(ar.get('expr12'));
 			nbSeatProbe = Integer.valueOf(ar.get('expr13'));
+			iSwissSeats = Integer.valueOf(ar.get('expr14'));
+			iMTSeats = Integer.valueOf(ar.get('expr15'));sfdx force:source:deploy -m ApexClass:CTRL_TotalSeatsReport -l RunSpecifiedTests -r Test_Ctrl_TotalSeatsReport
 			sendEmail = false;
 			iTotalCustomers = 0;
 		}
@@ -438,6 +449,8 @@ public with sharing class CTRL_TotalSeatsReport {
 			nbSeatAFRM = 0;
 			nbSeatTurning = 0;
 			nbSeatProbe = 0;
+			iSwissSeats = 0;
+			iMTSeats = 0;
 			sendEmail = false;
 		}
 		
@@ -456,6 +469,8 @@ public with sharing class CTRL_TotalSeatsReport {
 			nbSeatAFRM += r.nbSeatAFRM;
 			nbSeatTurning += r.nbSeatTurning;
 			nbSeatProbe += r.nbSeatProbe;
+			iSwissSeats += r.iSwissSeats;
+			iMTSeats += r.iMTSeats;
 		}
 
 		public void SetTotalCustomers(Integer iTotal)
