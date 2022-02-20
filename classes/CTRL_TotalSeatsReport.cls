@@ -143,6 +143,14 @@ public with sharing class CTRL_TotalSeatsReport {
 				{
 					iTotal = iTotal + map_count.get(row_reseller.reseller.Name);
 					row_reseller.SetTotalCustomers( map_count.get(row_reseller.reseller.Name));
+				
+					
+
+					String new_name = row_reseller.reseller.Name;
+					Pattern nonAlphanumeric = Pattern.compile('\\p{IsHan}');
+					Matcher matcher = nonAlphanumeric.matcher(new_name);
+					new_name = matcher.replaceAll('');
+					row_reseller.setResellerName(new_name);
 
 				}
 
@@ -197,7 +205,7 @@ public with sharing class CTRL_TotalSeatsReport {
 		
 		nat.add('natalie.somekh@solidcam.com');
 		nat.add('emil.somekh@solidcam.com');
-		nat.add('matan@solidcam.com');
+		nat.add('shelly.dahan@solidcam.com');
 		string header = htmlHeader();
 		string body = header;
 		Messaging.Singleemailmessage mail = new Messaging.Singleemailmessage();
@@ -209,7 +217,8 @@ public with sharing class CTRL_TotalSeatsReport {
 				body = body + TotalRow(total);
 				
 			mail.setToAddresses(nat);
-			mail.setCcAddresses(emailList(cc));
+			mail.setCcAddresses(emailList(cc)
+			);
 			body = body + htmlRow(r);
 			mail.setSubject('SolidCAM seats summary report');
 			mail.setSaveAsActivity(false);
@@ -272,14 +281,14 @@ public with sharing class CTRL_TotalSeatsReport {
 						           	  '<th>Reseller</th>'+
 					                  '<th>Seats</th>'+
 									  '<th>Customers</th>'+
-					                  '<th>SolidWorks</th>'+
-					                  '<th>Inventor</th>'+
+					                  '<th>SW</th>'+
+					                  '<th>IV</th>'+
 					                  '<th>Xpress</th>'+
 					                  '<th>AFRM</th>'+
 					                  '<th>HSM</th>'+
 					                  '<th>5X</th>'+
 					                  '<th>HSS</th>'+
-					                  '<th>Turning</th>'+
+					                  '<th>Turn</th>'+
 									  '<th>MillTurn</th>'+
 									  '<th>Swiss</th>'+
 									  '<th>Probe</th>'+
@@ -307,9 +316,9 @@ public with sharing class CTRL_TotalSeatsReport {
   					'<td align="center">'+row.nbSim5xSeats.format()+'</td>'+
    					'<td align="center">'+row.nbHSSSeats.format()+'</td>'+
    					'<td align="center">'+row.nbSeatTurning.format()+'</td>'+
-					'<td align="center">'+row.iSwissSeats.format()+'</td>'+
 					 '<td align="center">'+row.iMTSeats.format()+'</td>'+
-   					'<td align="center">'+row.nbSeatProbe.format()+'</td>'+
+					'<td align="center">'+row.iSwissSeats.format()+'</td>'+
+					'<td align="center">'+row.nbSeatProbe.format()+'</td>'+
    					'<td align="center">'+row.nbIMachining2DSeats.format()+'</td>'+
    					'<td align="center">'+row.getIMachining2DPerc().setscale(2)+'</td>'+
   					'<td align="center">'+row.nbIMachining3DSeats.format()+'</td>'+
@@ -334,9 +343,9 @@ public with sharing class CTRL_TotalSeatsReport {
   					'<td align="center">'+row.nbSim5xSeats.format()+'</td>'+
    					'<td align="center">'+row.nbHSSSeats.format()+'</td>'+
    					'<td align="center">'+row.nbSeatTurning.format()+'</td>'+
-					'<td align="center">'+row.iSwissSeats.format()+'</td>'+
 					'<td align="center">'+row.iMTSeats.format()+'</td>'+
-   					'<td align="center">'+row.nbSeatProbe.format()+'</td>'+
+					'<td align="center">'+row.iSwissSeats.format()+'</td>'+
+					'<td align="center">'+row.nbSeatProbe.format()+'</td>'+
    					'<td align="center">'+row.nbIMachining2DSeats.format()+'</td>'+
    					'<td align="center">'+row.getIMachining2DPerc().setscale(2)+'</td>'+
   					'<td align="center">'+row.nbIMachining3DSeats.format()+'</td>'+
@@ -428,7 +437,7 @@ public with sharing class CTRL_TotalSeatsReport {
 			nbSeatTurning = Integer.valueOf(ar.get('expr12'));
 			nbSeatProbe = Integer.valueOf(ar.get('expr13'));
 			iSwissSeats = Integer.valueOf(ar.get('expr14'));
-			iMTSeats = Integer.valueOf(ar.get('expr15'));sfdx force:source:deploy -m ApexClass:CTRL_TotalSeatsReport -l RunSpecifiedTests -r Test_Ctrl_TotalSeatsReport
+			iMTSeats = Integer.valueOf(ar.get('expr15'));
 			sendEmail = false;
 			iTotalCustomers = 0;
 		}
@@ -476,6 +485,11 @@ public with sharing class CTRL_TotalSeatsReport {
 		public void SetTotalCustomers(Integer iTotal)
 		{
 			iTotalCustomers = iTotal;
+		}
+
+		public void setResellerName(String Name)
+		{
+			reseller.name = Name;
 		}
 		
 		public Decimal getSubscriptionPerc(){

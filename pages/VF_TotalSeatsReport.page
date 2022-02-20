@@ -126,6 +126,9 @@
             $('#my_table').floatThead('reflow');
         });
     }
+
+   
+
     
     </script>
     <apex:form >
@@ -334,7 +337,7 @@
                                     <apex:inputCheckbox styleClass="sendEmail" value="{!row.sendEmail}"/>
                                     <div data-to="{!accountToAutomationMailsMap[row.reseller.Id].to}" data-cc="{!accountToAutomationMailsMap[row.reseller.Id].cc}" data-bcc="{!accountToAutomationMailsMap[row.reseller.Id].bcc}"/>
                                 </td>
-                                <td class="dataCell">Reseller:&nbsp;<apex:outputlink value="{!row.reseller.Id}"><strong>{!row.reseller.Name}</strong></apex:outputlink> ({!row.nbRecords} Record{!IF(row.nbRecords > 1,'s','')})</td>
+                                <td id="resname" resname="{!row.reseller.Name}" class="dataCell">Reseller:&nbsp;<apex:outputlink value="{!row.reseller.Id}"><strong>{!row.reseller.Name}</strong></apex:outputlink></td>
                                 <td class="dataCell">
                                     <apex:outputText value="{0, number, ###,###,###}">
                                         <apex:param value="{!row.nbOfSeats}"/>
