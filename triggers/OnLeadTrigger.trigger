@@ -60,6 +60,7 @@ trigger OnLeadTrigger on Lead (before insert) {
 				}
 			}
 		}
+	}
 		/**
 		*			if ((anyLead.Country == 'United States' || anyLead.Country == 'Canada') 
 			&& (anyLead.CreatedById == '00520000000jse1') 
@@ -74,6 +75,7 @@ trigger OnLeadTrigger on Lead (before insert) {
 			// if lead is O.K check if he has to be inserted in Aproval proccess
 			Boolean res = ApexUtils.add_object_to_approval(approveLead);
 			System.debug('res = '+res);
-		}	*/					 			
-	}
+		}	
+					 			
+	}*/		
 }
