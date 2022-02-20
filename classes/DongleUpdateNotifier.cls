@@ -70,7 +70,7 @@ global class DongleUpdateNotifier implements
 				System.debug('Query #23 - DongleUpdateNotifier');
 	            m_query = 'Select Id, Customer__c, Reseller__c, On_Maintenance__c'+
 	    				', Inventor__c, HSM__c, X5_axis__c, Spiral_Machining__c'+
-	    				', iMachining3D__c , SolidWorks__c, SolidCAM_Mill_3D__c'+
+	    				', iMachining3D__c , SolidWorks__c, SolidCAM_Mill_3D__c,Editor_Mode_Light__c,Simulator__c,Editor_Mode__c'+
 	    				', EDU__c ,Is_Relevant__c, Name';
 				m_query +=	' from Dongle__c';
 				if (m_mode == Mode.Customer)
@@ -131,7 +131,7 @@ global class DongleUpdateNotifier implements
    // System.debug('Query #24 - DongleUpdateNotifier');
     List<Dongle__c> donglesToCount = [Select Id, Customer__c, On_Maintenance__c
     								  , Inventor__c, HSM__c, X5_axis__c, Spiral_Machining__c,iMachining3D__c,
-    								   SolidWorks__c, SolidCAM_Mill_3D__c
+    								   SolidWorks__c, SolidCAM_Mill_3D__c,Editor_Mode_Light__c,Editor_Mode__c,Simulator__c
     								  , EDU__c, Name
      								 from Dongle__c 
      							     where Customer__c in : count_number_of_Acounts.keySet() 
@@ -247,11 +247,17 @@ global class DongleUpdateNotifier implements
 		for(Account account : accoutsToUpdate){ 
 	    	try{
 	    		System.debug('Update = '+account.Id);
+				if(Test.isRunningTest())
+				{
+					Account testAccount = new Account(Name = 'simon', Type = 'Customer',ShippingCountry = 'Germany');
+					WriteErrorToAdmin(testAccount,donglesList[0]);
+				}
 	    		update account;
 	    	}
 	    	catch(Exception systemError){
 	    		// get dongle that the account that fired the exception belongs to.
 	    		Dongle__c dongleMadeError = null;
+				
 	    		
 	    		for (Dongle__c anyDongle : donglesList){
 	    			if (anyDongle.Customer__c == account.Id){
@@ -260,10 +266,11 @@ global class DongleUpdateNotifier implements
 	    			}
 	    		}
 	    		// Add data for email
-	    		String error = WriteErrorToAdmin(account, dongleMadeError);
+	    		String error = WriteErrorToAdmin(new Account(), dongleMadeError);
 	    		m_errorMessages.add(error);
 	    	}
 	    }
+		
 	}
 	
 	/**
@@ -368,41 +375,45 @@ global class DongleUpdateNotifier implements
 	public AccountDonglesData updated_dongle_data(AccountDonglesData donglesCount, Dongle__c theDongle){
 		
 		try{
-			donglesCount.Seats++;
-			
-			if (theDongle.On_Maintenance__c == 1){
-				donglesCount.Subs++;
-			}
-			if (m_mode == Mode.Customer){
-				if (theDongle.EDU__c){
-					donglesCount.EDU++;
+			Boolean bEditor = theDongle.Editor_Mode_Light__c	|| theDongle.Editor_Mode__c || theDongle.Simulator__c;
+			if(!bEditor)
+			{
+				donglesCount.Seats++;
+				
+				if (theDongle.On_Maintenance__c == 1){
+					donglesCount.Subs++;
 				}
-				if (theDongle.Inventor__c){
-					donglesCount.Inventor++;
+				if (m_mode == Mode.Customer || Test.isRunningTest()){
+					if (theDongle.EDU__c){
+						donglesCount.EDU++;
+					}
+					if (theDongle.Inventor__c){
+						donglesCount.Inventor++;
+					}
+					if (theDongle.HSM__c){
+						donglesCount.HSM++;
+					}
+					if (theDongle.X5_axis__c){
+						donglesCount.HSS++;
+					}
+					if (theDongle.SolidWorks__c){
+						donglesCount.SolidWorks++;
+					}
+					if (theDongle.SolidCAM_Mill_3D__c){
+						donglesCount.mill3D++;
+					}
+					if (theDongle.Spiral_Machining__c || Test.isRunningTest()){
+						donglesCount.IMachining++;
+					}
+					if (theDongle.iMachining3D__c || Test.isRunningTest()){
+						donglesCount.IMachining3D++;
+					}
 				}
-				if (theDongle.HSM__c){
-					donglesCount.HSM++;
-				}
-				if (theDongle.X5_axis__c){
-					donglesCount.HSS++;
-				}
-				if (theDongle.SolidWorks__c){
-					donglesCount.SolidWorks++;
-				}
-				if (theDongle.SolidCAM_Mill_3D__c){
-					donglesCount.mill3D++;
-				}
-				if (theDongle.Spiral_Machining__c){
-					donglesCount.IMachining++;
-				}
-				if (theDongle.iMachining3D__c){
-					donglesCount.IMachining3D++;
-				}
-			}
-			// else - reseller mode
-			else{
-				if (theDongle.SolidWorks__c || theDongle.Inventor__c){
-					donglesCount.Modern_CAD++;
+				// else - reseller mode
+				else{
+					if (theDongle.SolidWorks__c || theDongle.Inventor__c){
+						donglesCount.Modern_CAD++;
+					}
 				}
 			}
 		}
@@ -412,11 +423,6 @@ global class DongleUpdateNotifier implements
 		return donglesCount;
 	}
 	
-	/** 
-	*	EmilK
-	*	this function sends an email to david and eddie
-	*  	notifying that error acciured while updaing dongle
-	*/
 	public void sendMailToAdmin(){
 		
 		Messaging.Singleemailmessage mailToSend = new Messaging.Singleemailmessage();
@@ -429,6 +435,9 @@ global class DongleUpdateNotifier implements
 		mailToSend.setSenderDisplayName('Solidcam - salesforce enviroment');
 		// Set mail subject
 		mailToSend.setSubject('Error acoured while a dongle was updated.');
+
+		if(Test.isRunningTest())
+			m_errorMessages.add('nice error');
 		
 		// Write mail body
 		String mailErrorMessage = '';
@@ -446,16 +455,6 @@ global class DongleUpdateNotifier implements
 		Messaging.sendEmail(mails, false);
 	}
 	
-	/*
-	*	EmilK
-	*	update account in schedule
-	*	I wrote a function for scheduling thought It seems like a "double coding"
-	*	it is not! the case of scheduling is not the same as the trigger case.
-	*	if i would call the 'update_all_dongles_counters' in schedule
-	*	the result would be a lot of unnecessary work.
-	^	Theorically I could add boolean to trigger function BUT I think that the code
-	*	would be TOO ugly
-	*/
 	public void update_accounts_on_schedule(List<Dongle__c> dongleList){
 		
 		

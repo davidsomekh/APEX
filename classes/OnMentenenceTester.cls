@@ -74,7 +74,7 @@ private class OnMentenenceTester {
    		new DongleUpdateNotifier(DongleUpdateNotifier.Mode.Reseller);
    	String Query = 	'Select Id, Customer__c, Reseller__c ,On_Maintenance__c'+
 	    				', Inventor__c, HSM__c, X5_axis__c'+
-	    				', SolidWorks__c, SolidCAM_Mill_3D__c'+
+	    				', SolidWorks__c, SolidCAM_Mill_3D__c,Spiral_Machining__c,iMachining3D__c,Editor_Mode_Light__c,Simulator__c,Editor_Mode__c'+
 	    				',Is_Relevant__c, Name'+
 						' from Dongle__c';
 	String customerQuery = Query + ' ORDER BY Customer__c limit 100';
@@ -82,6 +82,15 @@ private class OnMentenenceTester {
 	
    	//dongle_notifier.Query = customerQuery;
    	dongle_notifier2.Query = resellerQuery;
+
+	dongles[0].Spiral_Machining__c = true;
+	dongles[0].iMachining3D__c = true;
+
+	dongle_notifier2.updated_dongle_data(new AccountDonglesData(), dongles[0]);
+
+	dongle_notifier2.sendMailToAdmin();
+
+//	dongle_notifier2.Wr
    	
   	// EmilK
   	// finaly - test batch part of the class
