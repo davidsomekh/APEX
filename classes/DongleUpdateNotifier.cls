@@ -70,7 +70,8 @@ global class DongleUpdateNotifier implements
 				System.debug('Query #23 - DongleUpdateNotifier');
 	            m_query = 'Select Id, Customer__c, Reseller__c, On_Maintenance__c'+
 	    				', Inventor__c, HSM__c, X5_axis__c, Spiral_Machining__c'+
-	    				', iMachining3D__c , SolidWorks__c, SolidCAM_Mill_3D__c,Editor_Mode_Light__c,Simulator__c,Editor_Mode__c'+
+	    				', iMachining3D__c , SolidWorks__c, SolidCAM_Mill_3D__c,Editor_Mode_Light__c,Simulator__c,Editor_Mode__c,Number_of_seats__c'+
+						', Inventor_seats__c,HSM_seats__c,HSS_seats__c,SolidWorks_seats__c,iMachining_seats__c,iMachining3D_seats__c'+
 	    				', EDU__c ,Is_Relevant__c, Name';
 				m_query +=	' from Dongle__c';
 				if (m_mode == Mode.Customer)
@@ -132,6 +133,7 @@ global class DongleUpdateNotifier implements
     List<Dongle__c> donglesToCount = [Select Id, Customer__c, On_Maintenance__c
     								  , Inventor__c, HSM__c, X5_axis__c, Spiral_Machining__c,iMachining3D__c,
     								   SolidWorks__c, SolidCAM_Mill_3D__c,Editor_Mode_Light__c,Editor_Mode__c,Simulator__c
+									   , Inventor_seats__c,HSM_seats__c,HSS_seats__c,SolidWorks_seats__c,iMachining_seats__c,iMachining3D_seats__c,Number_of_seats__c
     								  , EDU__c, Name
      								 from Dongle__c 
      							     where Customer__c in : count_number_of_Acounts.keySet() 
@@ -378,35 +380,35 @@ global class DongleUpdateNotifier implements
 			Boolean bEditor = theDongle.Editor_Mode_Light__c	|| theDongle.Editor_Mode__c || theDongle.Simulator__c;
 			if(!bEditor)
 			{
-				donglesCount.Seats++;
+				donglesCount.Seats = Integer.valueOf(theDongle.Number_of_seats__c) + donglesCount.Seats;
 				
 				if (theDongle.On_Maintenance__c == 1){
-					donglesCount.Subs++;
+					donglesCount.Subs =  Integer.valueOf(theDongle.Number_of_seats__c) + donglesCount.Subs;
 				}
 				if (m_mode == Mode.Customer || Test.isRunningTest()){
 					if (theDongle.EDU__c){
-						donglesCount.EDU++;
+						donglesCount.EDU =  Integer.valueOf(theDongle.Number_of_seats__c) + donglesCount.EDU;
 					}
 					if (theDongle.Inventor__c){
-						donglesCount.Inventor++;
+						donglesCount.Inventor =  Integer.valueOf(theDongle.Inventor_seats__c) + donglesCount.Inventor;
 					}
 					if (theDongle.HSM__c){
-						donglesCount.HSM++;
+						donglesCount.HSM = Integer.valueOf(theDongle.HSM_seats__c)	 + donglesCount.HSM;
 					}
 					if (theDongle.X5_axis__c){
-						donglesCount.HSS++;
+						donglesCount.HSS = Integer.valueOf(theDongle.HSS_seats__c) + donglesCount.HSS;
 					}
 					if (theDongle.SolidWorks__c){
-						donglesCount.SolidWorks++;
+						donglesCount.SolidWorks = Integer.valueOf(theDongle.SolidWorks_seats__c) + donglesCount.SolidWorks;
 					}
 					if (theDongle.SolidCAM_Mill_3D__c){
-						donglesCount.mill3D++;
+						donglesCount.mill3D = Integer.valueOf(theDongle.Number_of_seats__c) + donglesCount.mill3D;
 					}
 					if (theDongle.Spiral_Machining__c || Test.isRunningTest()){
-						donglesCount.IMachining++;
+						donglesCount.IMachining = Integer.valueOf(theDongle.iMachining_seats__c) + donglesCount.IMachining;
 					}
 					if (theDongle.iMachining3D__c || Test.isRunningTest()){
-						donglesCount.IMachining3D++;
+						donglesCount.IMachining3D = Integer.valueOf(theDongle.iMachining3D_seats__c) + donglesCount.IMachining3D;
 					}
 				}
 				// else - reseller mode
