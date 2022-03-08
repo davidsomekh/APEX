@@ -62,24 +62,7 @@ public with sharing class CTRL_TotalSeatsReport {
 	private void init(){
 		AggregateResult[] groupedResults = [Select Reseller__r.Name, Reseller__c, COUNT(ID), SUM(Number_of_seats__c), SUM(SolidWorks_seats__c), SUM(Inventor_seats__c), SUM(HSM_seats__c), SUM(Sim_5x_seats__c), SUM(HSS_seats__c), SUM(iMachining_seats__c), SUM(iMachining3D_seats__c), SUM(Seats_on_subscription__c), SUM(Xpress_seats__c), SUM(AFRM_seats__c), SUM(Turning_seats__c), SUM(Probe_No__c),SUM(SWISS_seats__c),SUM(MT_seats__c) 
 			From Dongle__c                        
-			Where Active_Key__c=1
-				and Evaluation_Module__c excludes('Loan','Internal Use','Trial')
-				and Reseller__c != null
-				and (Not Reseller__r.Name like '%solidcam edu%')
-				and Supply_Status__c != 'Stock'
-				and EDU__c = false
-				and Evaluation__c = false
-				and (SolidWorks__c = true or Inventor__c = true)
-				and Customer__c != null
-				and (Not Customer__r.Name like '%Unknown%')
-				and Customer__r.Name !=  'Stock'
-				and NO_G_code__c = false
-				and Xpress_campaign__c = false
-				and Belongs_to_Inactive_Customer__c = 0
-				and Customer__r.Exclude_from_seats_report__c = false
-				and Editor_Mode__c	= false
-				and Editor_Mode_Light__c = false
-				and Simulator__c = false
+			Where Modern_CAD__c = TRUE 
 			Group By Reseller__r.Name, Reseller__c
             Order By SUM(Number_of_seats__c) DESC];
             
@@ -97,24 +80,7 @@ public with sharing class CTRL_TotalSeatsReport {
 			List<Dongle__c> recs_customer = new List<Dongle__c>();
 			recs_customer = [Select Reseller__r.Name,Customer__r.AccName__c 
 			From Dongle__c                        
-			Where Active_Key__c=1
-				and Evaluation_Module__c excludes('Loan','Internal Use','Trial')
-				and Reseller__c != null
-				and (Not Reseller__r.Name like '%solidcam edu%')
-				and Supply_Status__c != 'Stock'
-				and EDU__c = false
-				and Evaluation__c = false
-				and (SolidWorks__c = true or Inventor__c = true)
-				and Customer__c != null
-				and (Not Customer__r.Name like '%Unknown%')
-				and Customer__r.Name !=  'Stock'
-				and NO_G_code__c = false
-				and Xpress_campaign__c = false
-				and Belongs_to_Inactive_Customer__c = 0
-				and Customer__r.Exclude_from_seats_report__c = false
-				and Editor_Mode__c	= false
-				and Editor_Mode_Light__c = false
-				and Simulator__c = FALSE  ];
+			Where Modern_CAD__c = TRUE ];
 
 				Map<String, Integer> map_count = new Map<String, Integer>(); 
 				Map<String, Integer> map_dups = new Map<String, Integer>(); 
