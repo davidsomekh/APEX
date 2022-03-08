@@ -72,7 +72,7 @@ public with sharing class CTRL_TotalSeatsReport {
 				and (SolidWorks__c = true or Inventor__c = true)
 				and Customer__c != null
 				and (Not Customer__r.Name like '%Unknown%')
-				and (Not Customer__r.Name like '%Stock%')
+				and Customer__r.Name !=  'Stock'
 				and NO_G_code__c = false
 				and Xpress_campaign__c = false
 				and Belongs_to_Inactive_Customer__c = 0
@@ -107,7 +107,7 @@ public with sharing class CTRL_TotalSeatsReport {
 				and (SolidWorks__c = true or Inventor__c = true)
 				and Customer__c != null
 				and (Not Customer__r.Name like '%Unknown%')
-				and (Not Customer__r.Name like '%Stock%')
+				and Customer__r.Name !=  'Stock'
 				and NO_G_code__c = false
 				and Xpress_campaign__c = false
 				and Belongs_to_Inactive_Customer__c = 0
