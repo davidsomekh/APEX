@@ -15,10 +15,10 @@ public class LeadsTriggerTester {
 		 Lead new_lead2 = new Lead();
 		 new_lead2.LastName = 'lead1';
 		 new_lead2.Comments__c = 'zulu';
-		 new_lead2.Email = 'some.one@gmali.com';
+		 new_lead2.Email = 'some.one2@gmali.com';
 		 new_lead2.Company = 'Test';
 		 new_lead2.Country = 'United States';
-		 new_lead2.State = 'NY';
+		 new_lead2.State = 'NYY';
 		 new_lead2.LeadSource = 'Web site (SolidCAM)';
 
 		 Lead new_lead3 = new Lead();
