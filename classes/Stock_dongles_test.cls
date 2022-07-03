@@ -33,6 +33,7 @@ private class Stock_dongles_test {
     	opp.Dongles_type__c = 'Network 50';
     	opp.Reseller__c = '00120000003k3Pm';
     	opp.Order_Type__c = 'Subscription';
+		opp.Renewal_or_recapture__c = 'Renewal';
     	insert opp;
     	
     	DeletePK.DeleteKey('ddd',true);
@@ -49,6 +50,7 @@ private class Stock_dongles_test {
     	opp2.Dongles_type__c = 'Standalone';
     	opp2.Reseller__c = '00120000003k3Ny';
     	opp2.Order_Type__c = 'Subscription';
+		opp2.Renewal_or_recapture__c = 'Renewal';
 		insert opp2;
 		
 
