@@ -10,7 +10,7 @@
     <apex:form id="form">
 
     <apex:outputPanel rendered="{!m_finished == false}">
-    <br> <img src="http://sentinel.solidcam.com/images/animatedEllipse.gif" />  </br>
+    <br> <img src="https://forms.solidcam.com/ldk/process.gif" />  </br>
     </apex:outputPanel>
     <apex:actionFunction name="GeneratePK" action="{!GenerateUI}" rerender="form" OnComplete="finalRedirect()"/>
     <apex:outputPanel rendered="{!m_finished == true}">

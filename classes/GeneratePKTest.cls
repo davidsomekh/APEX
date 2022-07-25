@@ -81,6 +81,7 @@ private class GeneratePKTest {
     	opp.CloseDate=Date.today();
     	opp.Licens_type__c	= 'USB Dongle';
     	opp.Order_Type__c = 'Subscription';
+		opp.Renewal_or_recapture__c = 'Renewal';
     	insert opp;
     	Sales__c sales = new Sales__c();
     	sales.Name = 'test';
