@@ -1,4 +1,3 @@
-
 <apex:page standardController="Dongle__c" extensions="Dongle_Generate" action="{!AddCimco}">
     
     <apex:includeScript value="{!$Resource.jquery}"/>
