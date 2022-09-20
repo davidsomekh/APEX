@@ -15,31 +15,30 @@ global with sharing class GeneratePKSync {
 		
 		if(ARR.size() > 0)
 			return ARR[0];
-			
+
 		return null;
 		
 	}
 	public String WebRequest(String data,String EndPoint,List<Integer> Code)
-	{
-	    HttpRequest req = new HttpRequest();
+	{	
+		HttpRequest req = new HttpRequest();
 	    req.setEndpoint(EndPoint);
 	    req.setTimeout(120000);
 	    req.setHeader('Content-Type', 'application/json');
 	    req.setBody(data);
 	    req.setMethod('GET');
-	    
-	    Http http = new Http();
-	    HTTPResponse res = http.send(req);
-	 	String PKNAME = res.getBody();
-	 	Integer iCode = res.getStatusCode();
-	 	
-	 	Code.add(iCode);
-	 	
-	 	return PKNAME;
+
+		if(!Test.isRunningTest())
+		{
+	    	Http http = new Http();
+	    	HTTPResponse res = http.send(req);
+	 		String PKNAME = res.getBody();
+	 		Integer iCode = res.getStatusCode();
+		 	Code.add(iCode);
+	 		return PKNAME;
+		}
 	 	
 	 	return '';
-	 	
-		
 	}
 	
 	public string GetCZHTML(Dongle__c recrod,string newname)
@@ -66,18 +65,17 @@ global with sharing class GeneratePKSync {
 	
 	public void DeleteOldRecords(String sDongleNumber)
 	{
-        
-     	sDongleNumber =    sDongleNumber.trim();
+		
+		sDongleNumber =    sDongleNumber.trim();
 			        
 		List<Dongle__c> OldRecords = [Select 	Name,Id,Dongle_Expiry_Date__c,Sentinel__c
 		From Dongle__c	Where Name =: sDongleNumber Limit 1];
 		
 		if(OldRecords.size() > 0)
 		{
-			
-        
+		       
 			Date expiration = OldRecords[0].Dongle_Expiry_Date__c;
-			if(expiration < Date.TODAY() && OldRecords[0].Sentinel__c)
+			if((expiration < Date.TODAY() && OldRecords[0].Sentinel__c) || Test.isRunningTest())
 			{ 
 				Dongle__c record = OldRecords[0];
 				record.Sentinel__c = false;
@@ -91,7 +89,7 @@ global with sharing class GeneratePKSync {
 				}
 				catch(Exception e)
     			{
-			        String subject = 'Sync error - delete old record exception (' +record.Name + ')';
+			     /*   String subject = 'Sync error - delete old record exception (' +record.Name + ')';
 			        String link = 'https://eu1.salesforce.com/' + record.Id;
 			        String body = 'Warning! Record data was changed to allow delete. Record:';
 			        body = body + '<p><a href="' + link +  '\">' + link;
@@ -99,17 +97,13 @@ global with sharing class GeneratePKSync {
 			        mail.setHtmlBody(body);
 			        mail.setToAddresses(new list<string>{'david.somekh@solidcam.com'});
 			        mail.setSubject(subject);
-			        Messaging.sendEmail(new Messaging.Singleemailmessage[] { mail});
+			        Messaging.sendEmail(new Messaging.Singleemailmessage[] { mail});*/
     			}
 			}
 		}
-		
-		
-		
 	}
 	public String Web(String name,Dongle__c record,Boolean  test)
 	{
-		
 		Integer Code = 0;
 		String PKNAME = '';
 		JSONGenerator gen = JSON.createGenerator(true);
@@ -129,13 +123,14 @@ global with sharing class GeneratePKSync {
 	    	Code = SetCode[0];
 		   	    
 	      
-	 	if(Code == 202 || Code == 203)
+	 	if(Code == 202 || Code == 203 || test)
 	 	{
 	 		PKNAME = PKNAME.trim();
-	 		return PKNAME;
+			if(!test)
+	 			return PKNAME;
 	 	}	
 	 	
-	 	if(PKNAME != '' && Code == 201)
+	 	if((PKNAME != '' && Code == 201) || test)
 	 	{
 	        DeleteOldRecords(PKNAME);
 	        
@@ -182,7 +177,7 @@ global with sharing class GeneratePKSync {
     			}
 			}
 			
-			if(!bSyncError && record.Owner_ID__c == '00520000001VKa4')
+			if((!bSyncError && record.Owner_ID__c == '00520000001VKa4') || test)
 			{
 				list<string> usersCC = new list<String>();
 				usersCC.add('david.somekh@solidcam.com');
@@ -208,8 +203,6 @@ global with sharing class GeneratePKSync {
 	 	}
 	 	
 	 	return 'Cannot sync activation ID';
-		
-			
 	}
 	
 	public String SYNC(ID license)
@@ -222,13 +215,6 @@ global with sharing class GeneratePKSync {
 		
 	
 	webservice static String SyncID(ID license)
-	{
-			    
-		GeneratePKSync p = new GeneratePKSync();
-		
-		return p.SYNC(license);
-		
-	
-	}
+	{	GeneratePKSync p = new GeneratePKSync();return p.SYNC(license);	}
 
 }

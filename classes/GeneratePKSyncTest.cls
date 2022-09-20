@@ -11,13 +11,19 @@ private class GeneratePKSyncTest {
 	   
 	   dongle__c tester;
 	   
-	   List<Dongle__c> arrDongles = [Select Id
+	   List<Dongle__c> arrDongles = [Select Id,Name,Serial_No__c,Sync_error__c,Sync_name__c
 	   From Dongle__c	Where Name = 'testmethod1234' Limit 1];
+
+	   PKS.DeleteOldRecords('testmethod1234');
+	   PKS.GetCZHTML(RECORD,'David');
+
+	   List<Integer> SetCode = new List<Integer>();
 	   
 	    if(arrDongles.size() > 0)
 	   	{
 	   		tester = arrDongles[0];
 	  		PKS.GetDongle(tester.Id);
+			PKS.WebRequest('String data','String EndPoint',SetCode);
 	  		PKS.Web('dave',tester,true);
 	  		
 	    }
