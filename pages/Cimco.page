@@ -24,7 +24,7 @@
                     
                     
                      
-                    <apex:outputLink styleClass="LinkAtt" value="https://forms.solidcam.com/ldk/download.php?pk={!m_PK_name}">{!m_PK_name}</apex:outputLink>
+                    <apex:outputLink styleClass="LinkAtt" value="https://php.solidcam.com/ldk/download.php?pk={!m_PK_name}">{!m_PK_name}</apex:outputLink>
                 </apex:pageMessage>
               </apex:pageBlock>
                 </apex:outputPanel>
