@@ -113,7 +113,7 @@ global with sharing class GeneratePKSync {
 	    String JSON_DATA = gen.getAsString();
 	    
 	    List<Integer> SetCode = new List<Integer>();
-	    String EndPoint = 'http://solid-php.westeurope.cloudapp.azure.com/ldk/ldk.php';
+	    String EndPoint = 'http://php.solidcam.com/ldk/ldk.php';
 	    
 	    
 	    if(!test)
