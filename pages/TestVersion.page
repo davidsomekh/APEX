@@ -40,7 +40,7 @@
                     
                     
                      
-                    <apex:outputLink styleClass="LinkAtt" value="http://solid-php.westeurope.cloudapp.azure.com/ldk/download.php?pk={!m_PK_name}">{!m_PK_name}</apex:outputLink>
+                    <apex:outputLink styleClass="LinkAtt" value="http://php.solidcam.com/ldk/download.php?pk={!m_PK_name}">{!m_PK_name}</apex:outputLink>
                 </apex:pageMessage>
               </apex:pageBlock>
                 </apex:outputPanel>
