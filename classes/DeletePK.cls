@@ -13,7 +13,7 @@ global with sharing class DeletePK
 		Integer Code2 = 0;
 	    HTTPResponse response = null;
 	    
-	    EndPoint = 'http://solid-php.westeurope.cloudapp.azure.com/ldk/ldk.php';
+	    EndPoint = 'http://php.solidcam.com/ldk/ldk.php';
 	    
 	    JSONGenerator JSON_DATA = JSON.createGenerator(true);
         JSON_DATA.writeStartObject();

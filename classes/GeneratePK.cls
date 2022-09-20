@@ -1056,7 +1056,7 @@ global without sharing class GeneratePK {
 		        String JSON_DATA = gen.getAsString();
 		        
 		      	String EndPoint;
-			    EndPoint = 'https://forms.solidcam.com/ldk/ldk.php';
+			    EndPoint = 'https://php.solidcam.com/ldk/ldk.php';
 			    
 			    Integer Code = 0;
 			    String PKNAME ='';
