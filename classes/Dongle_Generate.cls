@@ -258,7 +258,7 @@ public with sharing class Dongle_Generate {
         string dataF=Encodingutil.urlEncode(getDATA('\r\n'),'UTF-8');
         String body = 'sticker='+sticker+'&data='+dataF+'&submit=Submit';
         // 'http://166.78.64.240:8080/license.php' // Sandbox link 'http://solid-php.cloudapp.net/license.php'
-        req.setEndpoint('http://solid-php.westeurope.cloudapp.azure.com/license.php');
+        req.setEndpoint('http://php.solidcam.com/license.php');
         //req.setHeader('Content-Type', 'multipart/form-data; boundary='+boundary);
         //log(req.getHeader('Content-Type'));
         req.setMethod('POST');

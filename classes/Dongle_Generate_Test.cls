@@ -12,6 +12,7 @@ private class Dongle_Generate_Test {
     	opp.Licens_type__c	= 'USB Dongle';
     	opp.CloseDate=Date.today();
     	opp.Order_Type__c = 'Subscription';
+		opp.Renewal_or_recapture__c = 'Renewal';
     	insert opp;
     	Sales__c sales = new Sales__c();
     	sales.Name = 'test';
@@ -97,6 +98,8 @@ private class Dongle_Generate_Test {
     	opp.CloseDate=Date.today();
     	opp.Licens_type__c	= 'USB Dongle';
     	opp.Order_Type__c = 'Subscription';
+		opp.Order_Type__c = 'Subscription';
+		opp.Renewal_or_recapture__c = 'Renewal';
     	insert opp;
     	Sales__c sales = new Sales__c();
     	sales.Name = 'test';
