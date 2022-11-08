@@ -67,27 +67,38 @@ public with sharing class CTRL_TotalSeatsReport {
             Order By SUM(Number_of_seats__c) DESC];
             
             options = new List<SelectOption>();
+
+			List<String> sub_resellers = new List<String>();
+
+
             
             total = new Reseller();
             for(AggregateResult ag:groupedResults){
             	Reseller r = new Reseller(ag);
             	resellers.add(r);
-            	options.add(new SelectOption(r.reseller.Name, r.reseller.Name));
+            //	options.add(new SelectOption(r.reseller.Name, r.reseller.Name));
             	total.addResellerTotal(r);
             }
 			
 
 			List<Dongle__c> recs_customer = new List<Dongle__c>();
-			recs_customer = [Select Reseller__r.Name,Customer__r.AccName__c 
+			recs_customer = [Select SubReseller__r.Name, Reseller__r.Name,Customer__r.AccName__c 
 			From Dongle__c                        
 			Where Modern_CAD__c = TRUE ];
 
 				Map<String, Integer> map_count = new Map<String, Integer>(); 
 				Map<String, Integer> map_dups = new Map<String, Integer>(); 
 
+			
 
 
 				for (Dongle__c rec : recs_customer) {
+					if(rec.SubReseller__c != null && !sub_resellers.contains(rec.SubReseller__r.Name))
+					{
+						//options.add(new SelectOption(rec.SubReseller__r.Name, rec.SubReseller__r.Name));
+						sub_resellers.add(rec.SubReseller__r.Name);
+					}
+
 					String key = rec.Reseller__r.Name + rec.Customer__r.AccName__c;
 					if(!map_dups.containsKey(key))
 					{
@@ -102,6 +113,12 @@ public with sharing class CTRL_TotalSeatsReport {
 						}
 					}
 				}
+				sub_resellers.sort();
+				for (String sub_reseller_name : sub_resellers) 
+				{
+					options.add(new SelectOption(sub_reseller_name, sub_reseller_name));
+				}
+
 
 				Integer iTotal = 0;
 
@@ -142,26 +159,59 @@ public with sharing class CTRL_TotalSeatsReport {
 	}
 	
 	private Messaging.Singleemailmessage buildResellerEmail(){
+
+
+		String dave ='';
+		AggregateResult[] groupedResults = [Select Reseller__c,SubReseller__r.Name,  COUNT(ID), SUM(Number_of_seats__c), SUM(SolidWorks_seats__c), SUM(Inventor_seats__c), SUM(HSM_seats__c), SUM(Sim_5x_seats__c), SUM(HSS_seats__c), SUM(iMachining_seats__c), SUM(iMachining3D_seats__c), SUM(Seats_on_subscription__c), SUM(Xpress_seats__c), SUM(AFRM_seats__c), SUM(Turning_seats__c), SUM(Probe_No__c),SUM(SWISS_seats__c),SUM(MT_seats__c) 
+			From Dongle__c                        
+			Where Modern_CAD__c = TRUE AND SubReseller__r.Name =: SelectedReseller
+			Group By SubReseller__r.Name,Reseller__c
+            Order By SUM(Number_of_seats__c) DESC];
+
+
+			List<Dongle__c> recs_customer = new List<Dongle__c>();
+			recs_customer = [Select SubReseller__r.Name, Reseller__r.Name,Customer__r.AccName__c 
+			From Dongle__c   
+			            
+			Where Modern_CAD__c = TRUE  AND SubReseller__r.Name =: SelectedReseller];
 		
 		list<string> nat = new list<String>();
+
+		list<string> customer_names = new list<String>();
+
+		Integer iTotalCustomers = 0;
 		
+		for (Dongle__c rec : recs_customer) {
+			if(!customer_names.contains(rec.Customer__r.AccName__c ))
+			{
+				iTotalCustomers++;
+				customer_names.add(rec.Customer__r.AccName__c );
+			}
+		}
+
+	
+		
+		nat.add('david.somekh@solidcam.com');
+		nat.add('emil.somekh@solidcam.com');
 		nat.add('natalie.somekh@solidcam.com');
+		//nat.add()
 		string header = htmlHeader();
 		string body = header;
 		Messaging.Singleemailmessage mail = new Messaging.Singleemailmessage();
-		for(Reseller r : resellers)
-		{
-			if(r.reseller.Name == SelectedReseller)
-			{
-				body = body + htmlRow(r);
-				Mail.setToAddresses(nat);
-				mail.setCcAddresses(emailList(cc));
-				Mail.setSubject(SelectedReseller + ' - SolidCAM seats summary report');
-				mail.setSaveAsActivity(false);
-				mail.setHtmlBody(body);
-			} 
-				
+
+		for(AggregateResult ag:groupedResults){
+			
+			Reseller r = new Reseller(ag);
+			r.SetTotalCustomers(iTotalCustomers);
+			body = body + htmlRow(r);
+			Mail.setToAddresses(nat);
+			mail.setCcAddresses(emailList(cc));
+			Mail.setSubject(SelectedReseller + ' - SolidCAM seats summary report');
+			mail.setSaveAsActivity(false);
+			mail.setHtmlBody(body);
 		}
+
+	
 		return mail;
 	}
 	
@@ -387,6 +437,7 @@ public with sharing class CTRL_TotalSeatsReport {
 		public Integer iMTSeats{get;private set;}
 		
 		public Reseller(AggregateResult ar){
+			
 			reseller = new Account(name = (String)(ar.get('Name')), Id=(Id)(ar.get('Reseller__c')));
 			nbRecords = Integer.valueOf(ar.get('expr0'));
 			nbOfSeats = Integer.valueOf(ar.get('expr1'));
