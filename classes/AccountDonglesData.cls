@@ -16,6 +16,7 @@ public with sharing class AccountDonglesData {
 	private Integer m_modern_CAD;
 	private Integer m_imachining;
 	private Integer m_imachining3d;
+	private Integer m_InternalUse;
 	
 	/*
 		Ctor
@@ -37,6 +38,7 @@ public with sharing class AccountDonglesData {
 		m_modern_CAD = 0;
 		m_imachining = 0;
 		m_imachining3d = 0;
+		m_InternalUse = 0;
 	}
 	
 	public Integer Modern_CAD{
@@ -90,6 +92,11 @@ public with sharing class AccountDonglesData {
 		public Integer IMachining{
 		set{m_imachining = value;}
 		get{return m_imachining;}
+	}
+
+	public Integer InternalUse{
+		set{m_InternalUse = value;}
+		get{return m_InternalUse;}
 	}
 	/*
 	
