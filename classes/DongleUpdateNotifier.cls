@@ -182,7 +182,7 @@ global class DongleUpdateNotifier implements
 	    // get all account to be updated
 	    Map<ID, Account> affected_Accounts_map = new Map<ID, Account>
 	        ([Select Id, Number_of_subs__c, 
-	        		 Seats__c, HSM__c,HSS__c, iMachining__c,iMachining_3D__c,
+	        		 Seats__c, HSM__c,HSS__c, iMachining__c,iMachining_3D__c,Internal_Use_seats__c,
 	        		 InventorCAM__c, SolidCAM__c,
 	        		 X3D_Mill__c, EDU__c, Name, Subs_Modern_CAD__c, 
 	        		 Subs_Balance__c , Previous_Subs_Balance__c
