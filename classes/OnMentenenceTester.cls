@@ -5,7 +5,7 @@ private class OnMentenenceTester {
 	//EmilK
 	// get one dongle with On_Maintenance = 1
 	List<Dongle__c> donglesList = 
-			[Select Id, Name, Customer__c, Maintenace_End_Date__c
+			[Select Id, Name, Customer__c, Maintenace_End_Date__c,Is_Relevant__c,Evaluation_Module__c
 			 from Dongle__c 
 			 where On_Maintenance__c = 1 limit 1];
 	//EmilK
@@ -27,6 +27,8 @@ private class OnMentenenceTester {
 	// update account number of subs
 	DongleUpdateNotifier n1 = new DongleUpdateNotifier(DongleUpdateNotifier.Mode.Customer);
 	n1.update_all_dongles_counters(donglesList);
+	//n1.WriteErrorToAdmin(accountIdList[0],donglesList[0]);
+	n1.update_accounts_on_schedule(donglesList);
 	
 	//EmilK
 	// get todays date
