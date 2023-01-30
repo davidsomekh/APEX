@@ -12,12 +12,12 @@ padding:6px;
 font-size:13px;
 }
 .header{
-	display:table-cell;
-	border:1px solid black;
-	border-right: 0px;
-	padding:4px;
-	font-weight: bold;
-	 
+    display:table-cell;
+    border:1px solid black;
+    border-right: 0px;
+    padding:4px;
+    font-weight: bold;
+     
 }
 .value{
 display:table-cell;
@@ -55,6 +55,10 @@ padding:6px;
   <apex:outputPanel rendered="{!IF(contains(lineitem.product2.name,'Embedded'),true,false)}">
    <div class="emb_alert"> <i class="material-icons">announcement</i> Embedded order</div>
   </apex:outputPanel>
+
+  <apex:outputPanel rendered="{!IF(contains(Opportunity.bundle_or_embedded__c,'Embedded'),true,false)}">
+    <div class="emb_alert"> <i class="material-icons">announcement</i> Embedded order</div>
+   </apex:outputPanel>
 
 
 
@@ -112,38 +116,38 @@ function isOdd(num) {
  
  function IsLineEmpty(index)
  {
-	for (i = 0; i < lines_delete.length; i++) 
-	{
-		if(lines_delete[i] == index)
-			return true;
-	}
-	
-	return false;
+    for (i = 0; i < lines_delete.length; i++) 
+    {
+        if(lines_delete[i] == index)
+            return true;
+    }
+    
+    return false;
 }
 
 var sRecordID = '';
 var $_GET = {};
 
-		
+        
 if(document.location.toString().indexOf('?') !== -1) {
-	var query = document.location
-				   .toString()
-				   // get the query string
-				   .replace(/^.*?\?/, '')
-				   // and remove any existing hash string (thanks, @vrijdenker)
-				   .replace(/#.*$/, '')
-				   .split('&');
+    var query = document.location
+                   .toString()
+                   // get the query string
+                   .replace(/^.*?\?/, '')
+                   // and remove any existing hash string (thanks, @vrijdenker)
+                   .replace(/#.*$/, '')
+                   .split('&');
 
-	for(var i=0, l=query.length; i<l; i++) {
-	   var aux = decodeURIComponent(query[i]).split('=');
-	   $_GET[aux[0]] = aux[1];
-	}
+    for(var i=0, l=query.length; i<l; i++) {
+       var aux = decodeURIComponent(query[i]).split('=');
+       $_GET[aux[0]] = aux[1];
+    }
 }
 //get the 'index' query parameter
 
 if($_GET['id'] != null)
-	sRecordID =  $_GET['id'];
-	
+    sRecordID =  $_GET['id'];
+    
 
 $('#exp').hide();
 $('#exp_header').hide();
@@ -151,12 +155,12 @@ $('#exp_header').hide();
  $( ".emb_alert" ).each(function( index ) {
  
  if(index > 0)
- 	$(this).remove();
-	
+    $(this).remove();
+    
 
 });
-			
-			
+            
+            
 var IV = {!Opportunity.InventorCAM__c};
 var exp_string = "{!Opportunity.License_expiration_date__c}";
 var exp_date = new  Date("{!Opportunity.License_expiration_date__c}");
@@ -181,15 +185,15 @@ var new_date = dd+'/'+mm+'/'+yyyy;
 console.log(new_date);
 
 if(exp_string != '')
-	$('body').prepend('<i class="material-icons">announcement</i> Timed license - ' + new_date);
+    $('body').prepend('<i class="material-icons">announcement</i> Timed license - ' + new_date);
 if(IV)
-	$('body').prepend('<div class="iv_alert"><i class="material-icons">announcement</i> InventorCAM order</div>');
-	
-	
+    $('body').prepend('<div class="iv_alert"><i class="material-icons">announcement</i> InventorCAM order</div>');
+    
+    
 if({!Opportunity.Products_count__c} < 1 || sCountry == 'United States')
-	$('.product_table').remove();
+    $('.product_table').remove();
 
-	
+    
 var count = 1;
  var line = 0;
  var lines = [];
@@ -198,17 +202,17 @@ var count = 1;
  
  if($(this).text() == '')
  {
-	lines_delete.push(index);
-	$(this).remove();
+    lines_delete.push(index);
+    $(this).remove();
 }
-	
+    
 
 });
 
 
 $( ".header" ).each(function( index ) {
-	if(IsLineEmpty(index))
-		$(this).remove();
+    if(IsLineEmpty(index))
+        $(this).remove();
  });
  
  $( ".header" ).each(function( index ) {
@@ -226,20 +230,20 @@ var sLine = '';
 var iCont = 0;
 while(iCont < count)
 {
-	iCont++;
-	if(isOdd(iCont))
-	{
-	    sLine = '#' + iCont + ',' + '#' + (iCont + count);
-		console.log(sLine);
-	}
-	else
-	{
-		var sInnerLine = ',#' + iCont + ',' + '#' + (iCont + count);
-		sLine = sLine + sInnerLine;
-		console.log(sInnerLine);
-		lines.push(sLine);
-		sLine = '';
-	}
+    iCont++;
+    if(isOdd(iCont))
+    {
+        sLine = '#' + iCont + ',' + '#' + (iCont + count);
+        console.log(sLine);
+    }
+    else
+    {
+        var sInnerLine = ',#' + iCont + ',' + '#' + (iCont + count);
+        sLine = sLine + sInnerLine;
+        console.log(sInnerLine);
+        lines.push(sLine);
+        sLine = '';
+    }
 }
 
 for (i = 0; i < lines.length; i++) 
@@ -251,7 +255,7 @@ window.print();
 
 
 window.onafterprint = function(e){
-		var sRecord = 'https://eu1.salesforce.com/' + sRecordID;
+        var sRecord = 'https://eu1.salesforce.com/' + sRecordID;
         window.location.replace(sRecord);
 
     };
