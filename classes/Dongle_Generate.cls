@@ -125,8 +125,11 @@ public with sharing class Dongle_Generate {
     		else
             {
     			iVersionIndex = GetUpdateIndex(dongle.New_Maintenance_End_Date__c,dongle.Customer_s_Country__c);
-                if(iVersionIndex > 250)
-                    iVersionIndex =  250;
+                if(iVersionIndex > 260)
+                    iVersionIndex =  260;
+
+                if(iVersionIndex == 260 && !dongle.Sentinel__c)
+                    iVersionIndex = 251;
             }
     	}
     	

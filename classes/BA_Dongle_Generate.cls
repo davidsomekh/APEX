@@ -36,14 +36,14 @@ global class BA_Dongle_Generate implements Database.Batchable<sObject>,Database.
 				Dongle__c record = (Dongle__c)s;
 				record.Date_Of_Order__c = date.today();
 				record.Dongle_Expiry_Date__c = date.newInstance(2023, 12, 31);
-				record.Version__c = '250';
+				record.Version__c = record.Sentinel__c ? '260' : '251';
 				listToUpdate.Add(record);
 			}
 			else if(m_bVersion)
 			{
 				Dongle__c record = (Dongle__c)s;
 				record.Date_Of_Order__c = date.today();
-				record.Version__c = '250';
+				record.Version__c = record.Sentinel__c ? '260' : '251';
 				listToUpdate.Add(record);
 			}
 			else
