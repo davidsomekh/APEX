@@ -8,7 +8,8 @@ trigger On_Account_Insert on Account (before insert, before update) {
 	Account ACC = Trigger.new[0]; //Pointer to the dongle
 	UpdateAccountOwner OwnerClass = new UpdateAccountOwner();
 	
-	OwnerClass.UpdateOwner(ACC);
+	if(ACC.ShippingCountry != 'United States' && ACC.ShippingCountry != 'Canada' && ACC.ShippingCountry != 'USA')
+		OwnerClass.UpdateOwner(ACC);
 	
 	map<String, Account> accountNames = new map<String, Account>();
 	PAD.requiredOnce.add('On_Account_Insert'); 
