@@ -26,7 +26,7 @@ private class GeneratePKTest {
 		Mill_2D_V__c,HSS_V__c,HSM__c,No_HSS__c,Active_Key__c,Convert5X__c,SolidCAM_WireEDM_2_axes__c,
 		SolidCAM_WireEDM_2_4_axes__c,GPX__c,Evaluation__c,Probe__c,G_Code_Simulation__c,TDM__c,
 		WinTool__c,	Profile__c,Probe_Level2__c,SolidCAM_2_7D_CONSTANT_Z__c,Network_Profiles_Dongle__c,
-		Bentley__c,CADTOOL__c,NCTOOL__c,DNCTOOL_For_Windows__c,Sentinel__c,Auto_3_2_Roughing__c,BaseModeler__c,Clone_detection_disabled__c,Zoller_integration__c,Multi_Axis_Roughing__c,Screw_Machining__c	
+		Bentley__c,CADTOOL__c,NCTOOL__c,DNCTOOL_For_Windows__c,Sentinel__c,Auto_3_2_Roughing__c,BaseModeler__c,Clone_detection_disabled__c,Zoller_integration__c,Multi_Axis_Roughing__c,Screw_Machining__c,SolidEdge__c
 		From Dongle__c	Where Name = 'testmethod123' Limit 1];
 		
 		
@@ -41,7 +41,7 @@ private class GeneratePKTest {
    		     Holes_Recognition__c=true,HSM__c=true,X5_axis__c=true,Spiral_Machining__c=true,iMachining3D__c=true,INVENTOR__c=true,Machine_Simulation__c=true,Multi_Axis_Roughing__c=true,
    		     MultiBlade_5x__c=true,Recognition_Features__c=true,Port_5x__c=true,Probe__c=true,Screw_Machining__c=true,Sim_Turning__c=true,Simultaneous_4_axes_C_axes__c=true,
    		     SolidCAM_Mill3D__c=true,SolidCAM_Turning__c=true,SolidCAM_WireEDM_2_axes__c=true,SolidCAM_WireEDM_2_4_axes__c=true,SOLIDWORKS__c=true,STL_Support__c=true,
-   		     Swarf_machining__c=true,TDM__c=true,WinTool__c=true,XpressPlus__c=true,Zoller_integration__c=true,Multi_Turret_Sync__c=true,Eureka__c=true,Auto_3_2_Roughing__c=true);
+   		     Swarf_machining__c=true,TDM__c=true,WinTool__c=true,XpressPlus__c=true,Zoller_integration__c=true,Multi_Turret_Sync__c=true,Eureka__c=true,Auto_3_2_Roughing__c=true,SolidEdge_c__c=true);
 	   		LIST_PROFILES.add(profile);
 	   		insert LIST_PROFILES;
 	   		

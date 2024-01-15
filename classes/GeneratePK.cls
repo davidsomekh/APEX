@@ -39,7 +39,7 @@ global without sharing class GeneratePK {
 		Probe__c,Probe_Level2__c,Reduced_HolesR__c,Screw_Machining__c,Sim_Turning__c,X5_axis__c,Simultaneous_5_axes_Reduced__c,Simultaneous_4_axes_C_axes__c,SolidCAM_Mill3D__c,
 		SolidCAM_Mill_3D_No_Engraving__c,SolidCAM_Turning__c,SolidCAM_WireEDM_2_axes__c,SolidCAM_WireEDM_2_4_axes__c,SOLIDWORKS__c,STL_Support__c,Swarf_machining__c,TDM__c,
 		WinTool__c,XpressPlus__c,Zoller_integration__c,Multi_Turret_Sync__c,SolidCAM_2_7D_CONSTANT_Z__c,Profile__c,BaseModeler__c,Bently__c,Editor_Mode__c,Multi_depth_Drill__c,Swiss_Type__c,Eureka_Simulator__c,Eureka_Machine_Editor__c,Eureka_Playlist__c,Eureka_Probe__c,Eureka_Cutting_Conditions__c,Eureka_Viewer__c,
-		Cimco__c,Vericut__c,Eureka__c,X5x_Edge_Breaking__c,X5x_Edge_Trimming__c,Tooltable_Only__c,HSM_Basic__c,Cimco_Add_On__c,Simulator__c,Editor_Mode_Light__c,Auto_3_2_Roughing__c
+		Cimco__c,Vericut__c,Eureka__c,X5x_Edge_Breaking__c,X5x_Edge_Trimming__c,Tooltable_Only__c,HSM_Basic__c,Cimco_Add_On__c,Simulator__c,Editor_Mode_Light__c,Auto_3_2_Roughing__c,SolidEdge_c__c
 		
 		From Profiles__c Where DongleNo__c =: d.Id];
     }
@@ -271,6 +271,7 @@ global without sharing class GeneratePK {
 		Integer  UsersVericut = 0;
 		Integer  UsersCimco = 0;
 		Integer  UsersAuto32 = 0;
+		Integer UsersSolidEdge = 0;
 
 		Integer UsersCimcoAddOn = 0;
 		Integer UsersHSMbasic = 0;
@@ -660,6 +661,13 @@ global without sharing class GeneratePK {
 	    		J.writeBooleanField('Auto32',true);
 			}
 
+			if(p.SolidEdge_c__c)
+	    	{
+	    		UsersSolidEdge = UsersSolidEdge += p.Profile_Users__c.intValue();
+	    		J.writeBooleanField('SolidEdge',true);
+			}
+
+
 	 	
 	    	
 
@@ -736,6 +744,7 @@ global without sharing class GeneratePK {
 		J.WriteNumberField('Profile87',UsersCimcoAddOn);
 		J.WriteNumberField('Profile88',UsersEditorLight);
 		J.WriteNumberField('Profile90',UsersAuto32);
+		J.WriteNumberField('Profile91',UsersSolidEdge);
 	
 		return J;
 	
@@ -827,6 +836,7 @@ global without sharing class GeneratePK {
 				J.writeBooleanField('CimcoAddOn',d.Cimco_Add_On__c);
 				J.writeBooleanField('EditorLight',d.Editor_Mode_Light__c);
 				J.writeBooleanField('Auto32',d.Auto_3_2_Roughing__c);
+				J.writeBooleanField('SolidEdge',d.SolidEdge__c);
 	
 			}
 				
@@ -935,7 +945,7 @@ global without sharing class GeneratePK {
 		SolidCAM_WireEDM_2_4_axes__c,GPX__c,Evaluation__c,Probe__c,G_Code_Simulation__c,TDM__c,
 		WinTool__c,	Profile__c,Probe_Level2__c,Activation_cancelled__c,SolidCAM_2_7D_CONSTANT_Z__c,Network_Profiles_Dongle__c,Owner_ID__c,
 		Bentley__c,CADTOOL__c,NCTOOL__c,DNCTOOL_For_Windows__c,Sentinel__c,BaseModeler__c,Clone_detection_disabled__c,Multi_depth_Drill__c,Swiss_Type__c,Zoller_integration__c,Multi_Axis_Roughing__c,Screw_Machining__c,Order__c,Eureka_Simulator__c,Eureka_Machine_Editor__c,Eureka_Playlist__c,Eureka_Probe__c,Eureka_Cutting_Conditions__c,Eureka_Viewer__c,
-		Cimco__c,Simulator__c,Vericut__c,Eureka__c,X5x_breaking__c	,X5x_Edge_Trimming__c,Tooltable_Only__c,HSM_Basic__c,Cimco_Add_On__c,Editor_Mode_Light__c,Auto_3_2_Roughing__c
+		Cimco__c,Simulator__c,Vericut__c,Eureka__c,X5x_breaking__c	,X5x_Edge_Trimming__c,Tooltable_Only__c,HSM_Basic__c,Cimco_Add_On__c,Editor_Mode_Light__c,Auto_3_2_Roughing__c,SolidEdge__c
 		From Dongle__c	Where Id =: license Limit 1];
 		
 		return ARR;
