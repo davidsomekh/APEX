@@ -107,7 +107,7 @@ public with sharing class Stock_dongles {
 		
 		users.add('linda.somekh@solidcam.com');
 		users.add('david.somekh@solidcam.com');
-		users.add('david.kazaz@solidcam.com');
+		users.add('roy.peter@solidcam.com');
 		
 		String subject = 'New stock import (' + m_sReseller +') '+m_sType;
 		Messaging.Singleemailmessage mail = new Messaging.Singleemailmessage();
