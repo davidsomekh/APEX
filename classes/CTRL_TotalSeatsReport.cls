@@ -293,7 +293,7 @@ public with sharing class CTRL_TotalSeatsReport {
             '<tr bgcolor="#8DB4E2">'+	
             '<th>Reseller</th>'+
             '<th>Seats</th>'+
-            '<th>Active Seats</th>'+
+            '<th>Seats (4Y SUBS)</th>'+
             '<th>Customers</th>'+
             '<th>SW</th>'+
             '<th>IV</th>'+
@@ -311,7 +311,8 @@ public with sharing class CTRL_TotalSeatsReport {
             '<th>iMach 3D</th>'+
             '<th>iMach 3D %</th>'+
             '<th>SUBS</th>'+
-            '<th>Active SUBS %</th>'+
+            '<th>SUBS %</th>'+
+            '<th>Active SUBS % (4Y SUBS)</th>'+
             '</tr>'+
             '</thead>';
     }
@@ -339,6 +340,7 @@ public with sharing class CTRL_TotalSeatsReport {
             '<td align="center">'+row.nbIMachining3DSeats.format()+'</td>'+
             '<td align="center">'+row.getIMachining3DPerc().setscale(2)+'</td>'+
             '<td align="center">'+row.nbSeatsOnSubscription.format()+'</td>'+
+            '<td align="center">'+row.getTotalSubscriptionPerc().setscale(2)+'</td>'+
             '<td align="center">'+row.getSubscriptionPerc().setscale(2)+'</td>'+
             '</tr>';
     }
@@ -367,6 +369,7 @@ public with sharing class CTRL_TotalSeatsReport {
             '<td align="center">'+row.nbIMachining3DSeats.format()+'</td>'+
             '<td align="center">'+row.getIMachining3DPerc().setscale(2)+'</td>'+
             '<td align="center">'+row.nbSeatsOnSubscription.format()+'</td>'+
+            '<td align="center">'+row.getTotalSubscriptionPerc().setscale(2)+'</td>'+
             '<td align="center">'+row.getSubscriptionPerc().setscale(2)+'</td>'+
             '</tr>';
     }
@@ -454,10 +457,8 @@ public with sharing class CTRL_TotalSeatsReport {
             iSwissSeats = Integer.valueOf(ar.get('expr14'));
             iMTSeats = Integer.valueOf(ar.get('expr15'));
             nbOfActiveSeats = Integer.valueOf(ar.get('expr16'));
-            
             sendEmail = false;
             iTotalCustomers = 0;
-            
         }
         
         public Reseller(){
@@ -500,7 +501,6 @@ public with sharing class CTRL_TotalSeatsReport {
             iSwissSeats += r.iSwissSeats;
             iMTSeats += r.iMTSeats;
             nbOfActiveSeats += r.nbOfActiveSeats;
-            
         }
         
         public void SetTotalCustomers(Integer iTotal)
@@ -530,6 +530,15 @@ public with sharing class CTRL_TotalSeatsReport {
             return (Decimal)nbIMachining3DSeats*100/nbOfSeats;
         }
         
+        public Decimal getTotalSubscriptionPerc(){
+           if(nbSeatsOnSubscription > 0 && nbOfSeats > 0){
+                return (Decimal)(nbSeatsOnSubscription*100/nbOfSeats);
+            }
+            else{
+                return 0;
+            }
+        }
+       
         public void addXmlToNode(Dom.XmlNode parentNode){
             Dom.XmlNode resellerNode = parentNode.addChildElement('Reseller',null,null);
             resellerNode.addChildElement('Name',null,null).addTextNode(reseller.Name);
@@ -549,6 +558,7 @@ public with sharing class CTRL_TotalSeatsReport {
             resellerNode.addChildElement('iMachining3D',null,null).addTextNode(nbIMachining3DSeats.format());
             resellerNode.addChildElement('iMachining3D_Percent',null,null).addTextNode(String.valueOf(getIMachining3DPerc().setscale(2)));
             resellerNode.addChildElement('Subscription',null,null).addTextNode(nbSeatsOnSubscription.format());
+            resellerNode.addChildElement('Total_Subscription_Percent',null,null).addTextNode(nbSeatsOnSubscription.format());
             resellerNode.addChildElement('Subscription_Percent',null,null).addTextNode(String.valueOf(getSubscriptionPerc().setscale(2)));
         }
     }
