@@ -209,6 +209,7 @@
                            </th> 
                            <th>Reseller</th>
                            <th><apex:outputText value="Seats"/></th>
+                           <th><apex:outputText value="Seats (4Y SUBS)"/></th>
                            <th><apex:outputText value="Customers"/></th>
                            <th><apex:outputText value="SolidWorks"/></th>
                            <th><apex:outputText value="Inventor"/></th>
@@ -226,7 +227,10 @@
                            <th><apex:outputText value="iMach 3D"/></th>
                            <th><apex:outputText value="iMach 3D %"/></th>
                            <th><apex:outputText value="SUBS"/></th>
-                           <th><apex:outputText value="SUBS %"/></th>
+                           
+						   <th><apex:outputText value="Subs %"/></th>
+
+                           <th><apex:outputText value="Active SUBS % (4Y SUBS)"/></th>
                        </tr>
                        
                    </thead>
@@ -238,6 +242,11 @@
                             <td>
                                 <apex:outputText value="{0, number, ###,###,###}">
                                     <apex:param value="{!total.nbOfSeats}"/>
+                                    </apex:outputText>
+                            </td>
+<td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbOfactiveSeats}"/>
                                     </apex:outputText>
                             </td>
                             <td>
@@ -325,6 +334,11 @@
                                     <apex:param value="{!total.nbSeatsOnSubscription}" />
                                 </apex:outputText>
                             </td>
+ <td>
+                            <apex:outputText value="{0, number, 00.00}">
+                                <apex:param value="{!total.TotalSubscriptionPerc}" />
+                            </apex:outputText>
+                        </td>
                         <td>
                             <apex:outputText value="{0, number, 00.00}">
                                 <apex:param value="{!total.SubscriptionPerc}" />
@@ -343,6 +357,11 @@
                                         <apex:param value="{!row.nbOfSeats}"/>
                                     </apex:outputText>
                                 </td>
+<td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!row.nbOfactiveSeats}"/>
+                                    </apex:outputText>
+                            </td>
                                 <td class="dataCell">
                                     <apex:outputText value="{0, number, ###,###,###}">
                                         <apex:param value="{!row.iTotalCustomers}"/>
@@ -430,6 +449,11 @@
                                 </td>
                                 <td class="dataCell">
                                     <apex:outputText value="{0, number, 00.00}">
+                                        <apex:param value="{!row.TotalSubscriptionPerc}" />
+                                    </apex:outputText>
+                                </td>
+                                <td class="dataCell">
+                                    <apex:outputText value="{0, number, 00.00}">
                                         <apex:param value="{!row.SubscriptionPerc}" />
                                     </apex:outputText>
                                 </td>
@@ -441,6 +465,16 @@
                             <td>
                                 <apex:outputText value="{0, number, ###,###,###}">
                                     <apex:param value="{!total.nbOfSeats}"/>
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.nbOfactiveSeats}"/>
+                                </apex:outputText>
+                            </td>
+<td>
+                                <apex:outputText value="{0, number, ###,###,###}">
+                                    <apex:param value="{!total.iTotalCustomers}"/>
                                 </apex:outputText>
                             </td>
                             <td>
@@ -522,6 +556,11 @@
                             <td>
                                 <apex:outputText value="{0, number, ###,###,###}">
                                     <apex:param value="{!total.nbSeatsOnSubscription}" />
+                                </apex:outputText>
+                            </td>
+<td>
+                                <apex:outputText value="{0, number, 00.00}">
+                                    <apex:param value="{!total.TotalSubscriptionPerc}" />
                                 </apex:outputText>
                             </td>
                             <td>
