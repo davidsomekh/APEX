@@ -61,6 +61,3 @@ trigger OppIsraelIndex on Opportunity (before insert)
 		
 			
 }
-	
-	
-

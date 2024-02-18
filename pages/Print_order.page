@@ -56,15 +56,18 @@ padding:6px;
    <div class="emb_alert"> <i class="material-icons">announcement</i> Embedded order</div>
   </apex:outputPanel>
 
-  <apex:outputPanel rendered="{!IF(contains(Opportunity.bundle_or_embedded__c,'Embedded'),true,false)}">
-    <div class="emb_alert"> <i class="material-icons">announcement</i> Embedded order</div>
-   </apex:outputPanel>
+
 
 
 
   
 
 </apex:repeat>
+
+
+  <apex:outputPanel rendered="{!IF(contains(Opportunity.bundle_or_embedded__c,'Embedded'),true,false)}">
+    <div class="emb_alert"> <i class="material-icons">announcement</i> Embedded order</div>
+   </apex:outputPanel>
 
 
 

@@ -15,7 +15,6 @@ trigger OnSWORDER on SolidWork_Order__c (before insert, before update) {
 	}
 	
 	pRecord.Reseller_name_apex__c = sReseller;
-	pRecord.OwnerId = pRecord.Reseller_order__r.OwnerId;
 
 	if(pRecord != null)
 	{
